@@ -1,0 +1,7 @@
+# 자유게시판
+## 게시글
+### 목록 조회
+GET {{host}}/boards
+Accept: application/json
+
+
