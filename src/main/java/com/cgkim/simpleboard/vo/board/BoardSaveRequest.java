@@ -20,8 +20,8 @@ public class BoardSaveRequest {
     private final String guestNickname;
 
     @Builder
-    public BoardSaveRequest(Category category, String title, String content, String guestNickname) {
-        this.category = category;
+    public BoardSaveRequest(Long categoryId, String title, String content, String guestNickname) {
+        this.category = Category.builder().categoryId(categoryId).build();
         this.title = title;
         this.content = content;
         this.guestNickname = guestNickname;

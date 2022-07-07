@@ -1,6 +1,7 @@
 package com.cgkim.simpleboard.domain.category;
 
 import com.cgkim.simpleboard.domain.board.Board;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -36,4 +37,12 @@ public class Category {
     @LastModifiedDate
     private LocalDateTime updateDate;
 
+    @Builder
+    public Category(Long categoryId, List<Board> boards, String name, LocalDateTime registerDate, LocalDateTime updateDate) {
+        this.categoryId = categoryId;
+        this.boards = boards;
+        this.name = name;
+        this.registerDate = registerDate;
+        this.updateDate = updateDate;
+    }
 }
