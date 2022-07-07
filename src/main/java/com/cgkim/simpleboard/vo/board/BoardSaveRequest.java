@@ -1,7 +1,7 @@
 package com.cgkim.simpleboard.vo.board;
 
-import com.cgkim.simpleboard.domain.board.Board;
-import com.cgkim.simpleboard.domain.category.Category;
+import com.cgkim.simpleboard.domain.Board;
+import com.cgkim.simpleboard.domain.Category;
 import lombok.Builder;
 import lombok.Getter;
 

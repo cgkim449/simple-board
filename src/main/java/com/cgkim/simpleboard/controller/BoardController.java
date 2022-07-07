@@ -7,6 +7,7 @@ import com.cgkim.simpleboard.vo.attach.AttachVo;
 import com.cgkim.simpleboard.vo.board.BoardDetailResponse;
 import com.cgkim.simpleboard.vo.board.BoardListResponse;
 import com.cgkim.simpleboard.vo.board.BoardSaveRequest;
+import com.cgkim.simpleboard.vo.board.BoardSearchRequest;
 import com.cgkim.simpleboard.vo.board.BoardUpdateRequest;
 import com.cgkim.simpleboard.vo.common.FileSaveRequest;
 import lombok.RequiredArgsConstructor;
@@ -106,10 +107,10 @@ public class BoardController {
      *
      */
     @GetMapping
-    public ResponseEntity<SuccessResponse> viewBoardList() {
+    public ResponseEntity<SuccessResponse> viewBoardList(BoardSearchRequest boardSearchRequest) {
 
-        List<BoardListResponse> boardList = boardService.viewBoardList();
-        long boardTotalCount = boardService.getTotalCount();
+        List<BoardListResponse> boardList = boardService.viewBoardList(boardSearchRequest);
+        long boardTotalCount = boardService.getTotalCount(boardSearchRequest);
 
         return ResponseEntity
                 .ok(new SuccessResponse()

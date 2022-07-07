@@ -29,13 +29,13 @@ SET @COUNT = 0;
 UPDATE tbl_board SET board_id = @COUNT:=@COUNT+1;
 
 ## 카테고리 insert
-INSERT INTO tbl_category(category_id, name)
+INSERT INTO category(category_id, name)
 VALUES(1, 'Java');
 
-INSERT INTO tbl_category(category_id, name)
+INSERT INTO category(category_id, name)
 VALUES(2, 'JavaScript');
 
-INSERT INTO tbl_category(category_id, name)
+INSERT INTO category(category_id, name)
 VALUES(3, 'Database');
 
 ## 관리자 insert

@@ -1,6 +1,5 @@
-package com.cgkim.simpleboard.domain.boardAttach;
+package com.cgkim.simpleboard.domain;
 
-import com.cgkim.simpleboard.domain.board.Board;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,17 +17,19 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import java.time.LocalDateTime;
 
+import static javax.persistence.FetchType.LAZY;
+
 @Getter
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @Entity
-public class BoardAttach {
+public class Attach {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long attachId;
 
-    @ManyToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "board_id")
     private Board board;
 
@@ -56,7 +57,8 @@ public class BoardAttach {
     private LocalDateTime updateDate;
 
     @Builder
-    public BoardAttach(Board board, String uploadPath, String uuid, String name, String extension, Integer isImage, Integer size) {
+    public Attach(Long attachId, Board board, String uploadPath, String uuid, String name, String extension, Integer isImage, Integer size, LocalDateTime registerDate, LocalDateTime updateDate) {
+        this.attachId = attachId;
         this.board = board;
         this.uploadPath = uploadPath;
         this.uuid = uuid;
@@ -64,5 +66,7 @@ public class BoardAttach {
         this.extension = extension;
         this.isImage = isImage;
         this.size = size;
+        this.registerDate = registerDate;
+        this.updateDate = updateDate;
     }
 }

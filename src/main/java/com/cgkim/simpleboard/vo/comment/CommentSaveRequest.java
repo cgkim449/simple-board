@@ -1,9 +1,6 @@
 package com.cgkim.simpleboard.vo.comment;
 
-import com.cgkim.simpleboard.domain.board.Board;
-import com.cgkim.simpleboard.domain.category.Category;
-import com.cgkim.simpleboard.domain.comment.Comment;
-import lombok.AllArgsConstructor;
+import com.cgkim.simpleboard.domain.Comment;
 import lombok.Builder;
 import lombok.Getter;
 

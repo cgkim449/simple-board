@@ -1,8 +1,6 @@
-package com.cgkim.simpleboard.domain.comment;
+package com.cgkim.simpleboard.domain;
 
-import com.cgkim.simpleboard.domain.board.Board;
-import com.cgkim.simpleboard.domain.boardAttach.BoardAttach;
-import com.cgkim.simpleboard.domain.category.Category;
+import com.cgkim.simpleboard.domain.Board;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,9 +16,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import java.time.LocalDateTime;
-import java.util.List;
+
+import static javax.persistence.FetchType.LAZY;
 
 @Getter
 @NoArgsConstructor
@@ -32,7 +30,7 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long commentId;
 
-    @ManyToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "board_id")
     private Board board;
 
@@ -40,6 +38,7 @@ public class Comment {
     private String content;
 
     private String guestNickname;
+    private String guestPassword;
 
     @CreatedDate
     private LocalDateTime registerDate;
@@ -48,10 +47,13 @@ public class Comment {
     private LocalDateTime updateDate;
 
     @Builder
-    public Comment(Long commentId, Board board, String content, String guestNickname) {
+    public Comment(Long commentId, Board board, String content, String guestNickname, String guestPassword, LocalDateTime registerDate, LocalDateTime updateDate) {
         this.commentId = commentId;
         this.board = board;
         this.content = content;
         this.guestNickname = guestNickname;
+        this.guestPassword = guestPassword;
+        this.registerDate = registerDate;
+        this.updateDate = updateDate;
     }
 }

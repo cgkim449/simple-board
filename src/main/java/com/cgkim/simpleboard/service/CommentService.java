@@ -1,26 +1,12 @@
 package com.cgkim.simpleboard.service;
 
-import com.cgkim.simpleboard.domain.board.Board;
-import com.cgkim.simpleboard.domain.board.BoardRepository;
-import com.cgkim.simpleboard.domain.comment.Comment;
-import com.cgkim.simpleboard.domain.comment.CommentRepository;
-import com.cgkim.simpleboard.exception.BoardInsertFailedException;
-import com.cgkim.simpleboard.exception.BoardNotFoundException;
+import com.cgkim.simpleboard.domain.Comment;
+import com.cgkim.simpleboard.repository.CommentRepository;
 import com.cgkim.simpleboard.exception.CommentNotFoundException;
 import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
-import com.cgkim.simpleboard.vo.attach.AttachVo;
-import com.cgkim.simpleboard.vo.board.BoardDetailResponse;
-import com.cgkim.simpleboard.vo.board.BoardListResponse;
-import com.cgkim.simpleboard.vo.board.BoardSaveRequest;
-import com.cgkim.simpleboard.vo.board.BoardUpdateRequest;
-import com.cgkim.simpleboard.vo.comment.CommentListResponse;
 import com.cgkim.simpleboard.vo.comment.CommentSaveRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 @RequiredArgsConstructor

@@ -1,14 +1,15 @@
 package com.cgkim.simpleboard.service;
 
-import com.cgkim.simpleboard.domain.board.Board;
-import com.cgkim.simpleboard.domain.board.BoardRepository;
+import com.cgkim.simpleboard.domain.Board;
 import com.cgkim.simpleboard.exception.BoardInsertFailedException;
 import com.cgkim.simpleboard.exception.BoardNotFoundException;
 import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
+import com.cgkim.simpleboard.repository.BoardRepository;
 import com.cgkim.simpleboard.vo.attach.AttachVo;
 import com.cgkim.simpleboard.vo.board.BoardDetailResponse;
 import com.cgkim.simpleboard.vo.board.BoardListResponse;
 import com.cgkim.simpleboard.vo.board.BoardSaveRequest;
+import com.cgkim.simpleboard.vo.board.BoardSearchRequest;
 import com.cgkim.simpleboard.vo.board.BoardUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,10 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
 
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Service
 public class BoardService {
 
@@ -37,7 +37,8 @@ public class BoardService {
     public Long writeBoard(BoardSaveRequest boardSaveRequest, List<AttachVo> attachInsertList) {
 
         try {
-            Long savedBoardId = boardRepository.save(boardSaveRequest.toBoard()).getBoardId();
+            Board board = boardSaveRequest.toBoard();
+            boardRepository.save(board); //글 저장
 
             if (isNotEmpty(attachInsertList)) {
 //TODO: 첨부파일
@@ -46,7 +47,7 @@ public class BoardService {
 //                updateThumbnailUri(attachInsertList, savedBoardId); //썸네일 URI update
             }
 
-            return savedBoardId;
+            return board.getBoardId();
 
         } catch (Exception e) { //게시물 등록 실패시 생성했던 파일 삭제
 
@@ -66,10 +67,15 @@ public class BoardService {
      * @param boardId
      * @return BoardDetailResponse
      */
+    //TODO: 조회수 증가랑 분리해야하나(트랜잭션때문에)
+    @Transactional(rollbackFor = Exception.class)
     public BoardDetailResponse viewBoardDetail(Long boardId) {
 
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND));
+        Board board = boardRepository.findById(boardId);
+
+        if(board == null) {
+            throw new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND);
+        }
 
         return BoardDetailResponse.from(board);
     }
@@ -83,10 +89,14 @@ public class BoardService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Long updateBoard(Long boardId,
-                            BoardUpdateRequest boardUpdateRequest) {
+                            BoardUpdateRequest boardUpdateRequest
+    ) {
 
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND));
+        Board board = boardRepository.findById(boardId);
+
+        if(board == null) {
+            throw new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND);
+        }
 
         board.update(boardUpdateRequest.getTitle(), boardUpdateRequest.getContent());
 
@@ -100,11 +110,6 @@ public class BoardService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteBoard(Long boardId) {
-
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND));
-
-        //TODO: 수정
         boardRepository.deleteById(boardId);
     }
 
@@ -114,9 +119,10 @@ public class BoardService {
      * @return
      */
     //TODO: 검색, 페이징
-    public List<BoardListResponse> viewBoardList() {
 
-        List<Board> allBoards = boardRepository.findAll();
+    public List<BoardListResponse> viewBoardList(BoardSearchRequest boardSearchRequest) {
+
+        List<Board> allBoards = boardRepository.findAll(boardSearchRequest);
 
         List<BoardListResponse> boardListResponseList = new ArrayList<>();
 
@@ -128,9 +134,9 @@ public class BoardService {
     }
 
     //TODO: 검색
-    public long getTotalCount() {
+    public long getTotalCount(BoardSearchRequest boardSearchRequest) {
 
-        long count = boardRepository.count();
+        long count = boardRepository.count(boardSearchRequest);
 
         return count;
     }

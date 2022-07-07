@@ -2,6 +2,7 @@ package com.cgkim.simpleboard.vo.board;
 
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -14,7 +15,7 @@ public class BoardSearchRequest {
 
     private String keyword; // 검색어
 
-    private Integer categoryId; // 카테고리
+    private Long categoryId; // 카테고리
 
     private Date fromDate; // 검색 시작 날짜
 
@@ -29,7 +30,7 @@ public class BoardSearchRequest {
      * @param fromDate
      * @param toDate
      */
-    public BoardSearchRequest(Integer page, String keyword, Integer categoryId, Date fromDate, Date toDate) {
+    public BoardSearchRequest(Integer page, String keyword, Long categoryId, Date fromDate, Date toDate) {
         this.page = (page == null || page < 1) ? 1 : page;
         this.keyword = keyword;
         this.categoryId = categoryId;
@@ -37,7 +38,7 @@ public class BoardSearchRequest {
         this.toDate = toDate;
     }
 
-    public final int limit = 12; // 한 페이지에 표시할 게시물 수
+    private final int limit = 12; // 한 페이지에 표시할 게시물 수
 
     /**
      * 페이지 offset

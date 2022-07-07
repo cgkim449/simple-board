@@ -1,11 +1,9 @@
 package com.cgkim.simpleboard.vo.board;
 
-import com.cgkim.simpleboard.domain.board.Board;
-import com.cgkim.simpleboard.domain.category.Category;
+import com.cgkim.simpleboard.domain.Board;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -25,18 +23,18 @@ public class BoardListResponse {
     private final String guestNickname;
 
     @JsonFormat(pattern="yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
-    private final LocalDateTime registerDate;
+    private final Date registerDate;
 
     @JsonFormat(pattern="yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
-    private final LocalDateTime updateDate;
+    private final Date updateDate;
 
     @Builder
     public BoardListResponse(Long boardId,
                              Long categoryId,
                              String title,
                              String guestNickname,
-                             LocalDateTime registerDate,
-                             LocalDateTime updateDate
+                             Date registerDate,
+                             Date updateDate
     ) {
 
         this.boardId = boardId;
