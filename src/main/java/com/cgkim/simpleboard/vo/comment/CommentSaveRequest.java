@@ -18,12 +18,14 @@ public class CommentSaveRequest {
 
     @Builder
     public CommentSaveRequest(Long boardId, String content, String guestNickname) {
+
         this.boardId = boardId;
         this.content = content;
         this.guestNickname = guestNickname;
     }
 
     public Comment toComment() {
+
         return Comment.builder()
                 .content(content)
                 .guestNickname(guestNickname)

@@ -31,6 +31,7 @@ public class BoardSearchRequest {
      * @param toDate
      */
     public BoardSearchRequest(Integer page, String keyword, Long categoryId, Date fromDate, Date toDate) {
+
         this.page = (page == null || page < 1) ? 1 : page;
         this.keyword = keyword;
         this.categoryId = categoryId;

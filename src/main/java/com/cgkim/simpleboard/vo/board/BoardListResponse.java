@@ -46,6 +46,7 @@ public class BoardListResponse {
     }
 
     public static BoardListResponse from(Board board) {
+
         return BoardListResponse.builder()
                 .boardId(board.getBoardId())
                 .categoryId(board.getCategory().getCategoryId())

@@ -66,6 +66,7 @@ public class Board {
 
     @Builder
     public Board(Long boardId, Category category, List<Attach> attaches, List<Comment> comments, String title, String content, String guestNickname, String guestPassword, Integer viewCount, Integer hasAttach, String thumbnailUri, Date registerDate, Date updateDate) {
+
         this.boardId = boardId;
         this.category = category;
         this.attaches = attaches;

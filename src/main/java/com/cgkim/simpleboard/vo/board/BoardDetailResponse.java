@@ -50,6 +50,7 @@ public class BoardDetailResponse {
     }
 
     public static BoardDetailResponse from(Board board) {
+
         return BoardDetailResponse.builder()
                 .boardId(board.getBoardId())
                 .categoryId(board.getCategory().getCategoryId())

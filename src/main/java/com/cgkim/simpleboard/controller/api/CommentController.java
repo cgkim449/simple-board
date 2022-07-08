@@ -1,30 +1,25 @@
-package com.cgkim.simpleboard.controller;
+package com.cgkim.simpleboard.controller.api;
 
 import com.cgkim.simpleboard.response.SuccessResponse;
 import com.cgkim.simpleboard.service.CommentService;
-import com.cgkim.simpleboard.vo.comment.CommentListResponse;
 import com.cgkim.simpleboard.vo.comment.CommentSaveRequest;
-import com.cgkim.simpleboard.vo.common.GuestPasswordCheckRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 
 /**
  * 자유게시판 댓글 컨트롤러
  */
 @RequiredArgsConstructor
-@RequestMapping("/comments")
+@RequestMapping("/api/comments")
 @RestController
 public class CommentController {
 

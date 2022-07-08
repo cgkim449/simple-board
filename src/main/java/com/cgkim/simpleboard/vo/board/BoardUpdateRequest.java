@@ -13,6 +13,7 @@ public class BoardUpdateRequest {
 
     @Builder
     public BoardUpdateRequest(String title, String content) {
+
         this.title = title;
         this.content = content;
     }

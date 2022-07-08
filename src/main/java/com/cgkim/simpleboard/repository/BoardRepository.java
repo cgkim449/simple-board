@@ -1,20 +1,15 @@
 package com.cgkim.simpleboard.repository;
 
 import com.cgkim.simpleboard.domain.Board;
-import com.cgkim.simpleboard.domain.QBoard;
-import com.cgkim.simpleboard.domain.QCategory;
 import com.cgkim.simpleboard.exception.BoardNotFoundException;
 import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
 import com.cgkim.simpleboard.vo.board.BoardSearchRequest;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 

@@ -118,8 +118,6 @@ public class BoardService {
      *
      * @return
      */
-    //TODO: 검색, 페이징
-
     public List<BoardListResponse> viewBoardList(BoardSearchRequest boardSearchRequest) {
 
         List<Board> allBoards = boardRepository.findAll(boardSearchRequest);
