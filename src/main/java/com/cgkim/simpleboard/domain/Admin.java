@@ -24,14 +24,13 @@ public class Admin {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long adminId;
 
-    //TODO: unique
-    @Column(length = 30, nullable = false)
+    @Column(unique = true, length = 30, nullable = false)
     private String username;
 
     @Column(length = 64, nullable = false)
     private String password;
 
-    @Column(length = 30, nullable = false)
+    @Column(unique = true, length = 30, nullable = false)
     private String nickname;
 
     @CreatedDate

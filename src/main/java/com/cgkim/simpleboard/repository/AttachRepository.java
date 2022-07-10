@@ -1,11 +1,7 @@
 package com.cgkim.simpleboard.repository;
 
 import com.cgkim.simpleboard.domain.Attach;
-import com.cgkim.simpleboard.domain.Board;
 import com.cgkim.simpleboard.domain.QAttach;
-import com.cgkim.simpleboard.domain.QBoard;
-import com.cgkim.simpleboard.domain.QCategory;
-import com.cgkim.simpleboard.vo.board.BoardSearchRequest;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;

@@ -7,23 +7,19 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.FetchType.LAZY;
 
 @Getter
@@ -48,14 +44,11 @@ public class Board {
     @JoinColumn(name = "admin_id")
     private Admin admin;
 
-//    가급적 양방향보단 단방향이 나음.
-//    '게시물을 등록할때 항상 첨부파일이 등록된다'가 아니라, '첨부파일이 등록될때 게시물이 필요하다' 라고 생각하는게 더 맞다
-//
-//    @OneToMany(mappedBy = "board")
-//    private List<Attach> attaches = new ArrayList<>();
-//
-//    @OneToMany(mappedBy = "board")
-//    private List<Comment> comments = new ArrayList<>();
+    @OneToMany(mappedBy = "board")
+    private List<Attach> attaches = new ArrayList<>();
+
+    @OneToMany(mappedBy = "board")
+    private List<Comment> comments = new ArrayList<>();
 
     @Column(length = 100, nullable = false)
     private String title;

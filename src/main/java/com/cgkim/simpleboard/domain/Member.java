@@ -15,10 +15,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
+
+//TODO: one to many, 연관관계 편의 메서드 (다른 도메인들도 전부)
 
 @Getter
 @NoArgsConstructor
@@ -30,14 +35,19 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long memberId;
 
-    //TODO: unique
-    @Column(length = 30, nullable = false)
+    @OneToMany(mappedBy = "member")
+    private List<Board> boards = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private List<Comment> comments = new ArrayList<>();
+
+    @Column(unique = true, length = 30, nullable = false)
     private String username;
 
     @Column(length = 64, nullable = false)
     private String password;
 
-    @Column(length = 30, nullable = false)
+    @Column(unique = true, length = 30, nullable = false)
     private String nickname;
 
     @CreatedDate
@@ -46,7 +56,10 @@ public class Member {
     @LastModifiedDate
     private LocalDateTime updateDate;
 
+    @Builder
     public Member(Long memberId,
+                  List<Board> boards,
+                  List<Comment> comments,
                   String username,
                   String password,
                   String nickname,
@@ -55,6 +68,8 @@ public class Member {
     ) {
 
         this.memberId = memberId;
+        this.boards = boards;
+        this.comments = comments;
         this.username = username;
         this.password = password;
         this.nickname = nickname;

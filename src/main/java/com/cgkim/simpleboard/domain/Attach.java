@@ -81,12 +81,17 @@ public class Attach {
         this.updateDate = updateDate;
     }
 
-    /**
-     * 첨부파일 이름 + 확장자 리턴
-     *
-     * @return String
-     */
     public String getFullName() {
         return getName() + '.' + getExtension();
+    }
+
+    //==연관관계 편의 메서드==//
+    //연관관계 편의 메서드의 위치는 연관관계 주인인 쪽이 좋다?
+    //양방향일때 연관관계 편의 메서드를 쓰면 편하다
+    //자식에도 넣어주고 부모에도 넣어주는 역할을 함
+    public void setBoard(Board board) {
+        this.board = board;
+        board.getAttaches().add(this);
+        //이 두줄을 원자적으로 묶는것(그냥 편의에 의해 이렇게 하는것)
     }
 }
