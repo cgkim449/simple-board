@@ -43,6 +43,7 @@ public class BoardSaveRequest {
                 .title(title)
                 .content(content)
                 .guestNickname(guestNickname)
+                .guestPassword(guestPassword)
                 .build();
     }
 }

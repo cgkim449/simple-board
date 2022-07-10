@@ -34,6 +34,14 @@ public class Comment {
     @JoinColumn(name = "board_id")
     private Board board;
 
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "admin_id")
+    private Admin admin;
+
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
@@ -47,9 +55,21 @@ public class Comment {
     private LocalDateTime updateDate;
 
     @Builder
-    public Comment(Long commentId, Board board, String content, String guestNickname, String guestPassword, LocalDateTime registerDate, LocalDateTime updateDate) {
+    public Comment(Long commentId,
+                   Board board,
+                   Member member,
+                   Admin admin,
+                   String content,
+                   String guestNickname,
+                   String guestPassword,
+                   LocalDateTime registerDate,
+                   LocalDateTime updateDate
+    ) {
+
         this.commentId = commentId;
         this.board = board;
+        this.member = member;
+        this.admin = admin;
         this.content = content;
         this.guestNickname = guestNickname;
         this.guestPassword = guestPassword;

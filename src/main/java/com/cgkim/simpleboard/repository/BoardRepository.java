@@ -1,6 +1,8 @@
 package com.cgkim.simpleboard.repository;
 
 import com.cgkim.simpleboard.domain.Board;
+import com.cgkim.simpleboard.domain.QBoard;
+import com.cgkim.simpleboard.domain.QCategory;
 import com.cgkim.simpleboard.exception.BoardNotFoundException;
 import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
 import com.cgkim.simpleboard.vo.board.BoardSearchRequest;
@@ -58,6 +60,7 @@ public class BoardRepository {
                 )
                 .offset(boardSearchRequest.getOffset())
                 .limit(boardSearchRequest.getLimit())
+                .orderBy(board.registerDate.desc(), board.boardId.desc())
                 .fetch();
     }
 
@@ -112,6 +115,7 @@ public class BoardRepository {
                 )
                 .offset(boardSearchRequest.getOffset())
                 .limit(boardSearchRequest.getLimit())
+                .orderBy(board.registerDate.desc(), board.boardId.desc())
                 .fetch()
                 .size();
     }

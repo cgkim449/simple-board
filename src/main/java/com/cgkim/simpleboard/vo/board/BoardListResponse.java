@@ -14,35 +14,46 @@ import java.util.Date;
 @Getter
 public class BoardListResponse {
 
-    private final Long boardId;
+    private Long boardId;
 
-    private final String title;
+    private String title;
 
-    private final Long categoryId;
+    private int viewCount;
 
-    private final String guestNickname;
-
-    @JsonFormat(pattern="yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
-    private final Date registerDate;
+    private Integer hasAttach;
 
     @JsonFormat(pattern="yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
-    private final Date updateDate;
+    private Date registerDate;
+
+    @JsonFormat(pattern="yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
+    private Date updateDate;
+
+    private Long categoryId;
+
+    private String categoryName;
+
+    private String guestNickname;
+
+    private String memberNickname;
+
+    private String adminNickname;
+
+    private String thumbnailUri;
 
     @Builder
-    public BoardListResponse(Long boardId,
-                             Long categoryId,
-                             String title,
-                             String guestNickname,
-                             Date registerDate,
-                             Date updateDate
-    ) {
-
+    public BoardListResponse(Long boardId, String title, int viewCount, int hasAttach, Date registerDate, Date updateDate, Long categoryId, String categoryName, String guestNickname, String memberNickname, String adminNickname, String thumbnailUri) {
         this.boardId = boardId;
-        this.categoryId = categoryId;
         this.title = title;
-        this.guestNickname = guestNickname;
+        this.viewCount = viewCount;
+        this.hasAttach = hasAttach;
         this.registerDate = registerDate;
         this.updateDate = updateDate;
+        this.categoryId = categoryId;
+        this.categoryName = categoryName;
+        this.guestNickname = guestNickname;
+        this.memberNickname = memberNickname;
+        this.adminNickname = adminNickname;
+        this.thumbnailUri = thumbnailUri;
     }
 
     public static BoardListResponse from(Board board) {
@@ -50,6 +61,8 @@ public class BoardListResponse {
         return BoardListResponse.builder()
                 .boardId(board.getBoardId())
                 .categoryId(board.getCategory().getCategoryId())
+                .categoryName(board.getCategory().getName())
+                .hasAttach(board.getHasAttach() == null || board.getHasAttach() == 0 ? 0 : 1)
                 .title(board.getTitle())
                 .guestNickname(board.getGuestNickname())
                 .registerDate(board.getRegisterDate())

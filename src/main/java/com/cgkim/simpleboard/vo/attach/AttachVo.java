@@ -55,26 +55,24 @@ public class AttachVo {
     private String thumbnailUri;
     private String originalImageUri;
 
-    /**
-     * 주입
-     *
-     * @param uploadPath
-     * @param uuid
-     * @param name
-     * @param extension
-     * @param isImage
-     * @param size
-     */
     @Builder
-    public AttachVo(String uploadPath, String uuid, String name, String extension, boolean isImage, long size) {
+    public AttachVo(Long attachId, Long boardId, Long questionId, Long answerId, Long faqId, Long noticeId, String uploadPath, String uuid, String name, String extension, boolean isImage, long size, String thumbnailUri, String originalImageUri) {
+
+        this.attachId = attachId;
+        this.boardId = boardId;
+        this.questionId = questionId;
+        this.answerId = answerId;
+        this.faqId = faqId;
+        this.noticeId = noticeId;
         this.uploadPath = uploadPath;
         this.uuid = uuid;
         this.name = name;
         this.extension = extension;
         this.isImage = isImage;
         this.size = size;
+        this.thumbnailUri = thumbnailUri;
+        this.originalImageUri = originalImageUri;
     }
-
 
     /**
      * 첨부파일 이름 + 확장자 리턴

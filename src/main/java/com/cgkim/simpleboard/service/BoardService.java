@@ -1,10 +1,14 @@
 package com.cgkim.simpleboard.service;
 
+import com.cgkim.simpleboard.domain.Attach;
 import com.cgkim.simpleboard.domain.Board;
 import com.cgkim.simpleboard.exception.BoardInsertFailedException;
 import com.cgkim.simpleboard.exception.BoardNotFoundException;
 import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
+import com.cgkim.simpleboard.repository.AttachRepository;
 import com.cgkim.simpleboard.repository.BoardRepository;
+import com.cgkim.simpleboard.util.AttachURIProvider;
+import com.cgkim.simpleboard.util.SHA256PasswordEncoder;
 import com.cgkim.simpleboard.vo.attach.AttachVo;
 import com.cgkim.simpleboard.vo.board.BoardDetailResponse;
 import com.cgkim.simpleboard.vo.board.BoardListResponse;
@@ -18,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -25,6 +30,13 @@ import java.util.List;
 public class BoardService {
 
     private final BoardRepository boardRepository;
+
+    private final AttachRepository attachRepository;
+
+    private final SHA256PasswordEncoder sha256PasswordEncoder;
+
+    private final AttachURIProvider attachURIProvider;
+
 
     /**
      * 익명 게시물 작성
@@ -39,20 +51,66 @@ public class BoardService {
         try {
             Board board = boardSaveRequest.toBoard();
             boardRepository.save(board); //글 저장
+            Long savedBoardId = board.getBoardId();
 
             if (isNotEmpty(attachInsertList)) {
-//TODO: 첨부파일
-//                insertAttaches(attachInsertList, savedBoardId);  //첨부파일 insert
-//                updateHasAttach(savedBoardId); //첨부파일 유무 update
-//                updateThumbnailUri(attachInsertList, savedBoardId); //썸네일 URI update
+
+                insertAttaches(attachInsertList, board);  //첨부파일 insert
+
+                updateHasAttach(board);
+                updateThumbnailUri(attachInsertList, board); //썸네일 URI update
             }
 
-            return board.getBoardId();
+            return savedBoardId;
 
         } catch (Exception e) { //게시물 등록 실패시 생성했던 파일 삭제
 
             e.printStackTrace();
             throw new BoardInsertFailedException(attachInsertList, ErrorCode.BOARD_INSERT_FAILED);
+        }
+    }
+
+    private void updateThumbnailUri(List<AttachVo> attachList, Board board) {
+
+        for (AttachVo attach : attachList) {
+
+            if (attach.isImage()) {
+
+                String thumbnailUri = attachURIProvider.createThumbnailURIForDB(attach);
+
+                board.updateThumbnailUri(thumbnailUri);
+
+                return;
+            }
+        }
+
+        board.updateThumbnailUri("");
+    }
+
+    private void updateHasAttach(Board board) {
+        //TODO: select count 로 바꾸기
+        List<Attach> attaches = attachRepository.findAll(board.getBoardId());
+        Integer hasAttach = attaches.size() > 0 ? 1 : 0;
+
+        board.updateHasAttach(hasAttach);
+    }
+
+    private void insertAttaches(List<AttachVo> attachInsertList, Board board) {
+
+        for (AttachVo attachVo : attachInsertList) {
+
+            Attach attach = Attach.builder()
+                    .attachId(attachVo.getAttachId())
+                    .board(board)
+                    .uploadPath(attachVo.getUploadPath())
+                    .uuid(attachVo.getUuid())
+                    .name(attachVo.getName())
+                    .extension(attachVo.getExtension())
+                    .isImage(attachVo.getIsImage() ? 1 : 0)
+                    .size(attachVo.getSize())
+                    .build();
+
+            attachRepository.save(attach);
         }
     }
 
@@ -77,7 +135,29 @@ public class BoardService {
             throw new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND);
         }
 
-        return BoardDetailResponse.from(board);
+        List<Attach> attaches = board.getAttaches();
+
+        List<AttachVo> attachVoList = new ArrayList<>();
+
+        //TODO: 다시해야됨
+        for (Attach attach : attaches) {
+            attachVoList.add(AttachVo.builder()
+                    .attachId(attach.getAttachId())
+                    .boardId(board.getBoardId())
+                    .uploadPath(attach.getUploadPath())
+                    .uuid(attach.getUuid())
+                    .name(attach.getName())
+                    .extension(attach.getExtension())
+                    .isImage(attach.getIsImage() == 1)
+                    .size(attach.getSize())
+                    .build());
+        }
+
+        attachURIProvider.setImageURIsOf(attachVoList);
+        BoardDetailResponse boardDetailResponse = BoardDetailResponse.from(board);
+        boardDetailResponse.setAttachList(attachVoList);
+
+        return boardDetailResponse;
     }
 
     /**
@@ -122,13 +202,13 @@ public class BoardService {
 
         List<Board> allBoards = boardRepository.findAll(boardSearchRequest);
 
-        List<BoardListResponse> boardListResponseList = new ArrayList<>();
+        List<BoardListResponse> boardListResponses = new ArrayList<>();
 
         for (Board board : allBoards) {
-            boardListResponseList.add(BoardListResponse.from(board));
+            boardListResponses.add(BoardListResponse.from(board));
         }
 
-        return boardListResponseList;
+        return boardListResponses;
     }
 
     //TODO: 검색

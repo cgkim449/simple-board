@@ -10,6 +10,7 @@ import com.cgkim.simpleboard.vo.board.BoardSaveRequest;
 import com.cgkim.simpleboard.vo.board.BoardSearchRequest;
 import com.cgkim.simpleboard.vo.board.BoardUpdateRequest;
 import com.cgkim.simpleboard.vo.common.FileSaveRequest;
+import com.cgkim.simpleboard.vo.common.GuestPasswordCheckRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +30,8 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/boards")
-public class BoardController {
+@RequestMapping("/boards")
+public class BoardRestController {
 
     private final BoardService boardService;
 
@@ -78,7 +79,7 @@ public class BoardController {
      */
     @PatchMapping("/{boardId}")
     public ResponseEntity<SuccessResponse> updateBoard(@PathVariable Long boardId,
-                                                       BoardUpdateRequest boardUpdateRequest
+                                                       @Valid BoardUpdateRequest boardUpdateRequest
     ) {
 
         boardService.updateBoard(boardId, boardUpdateRequest);

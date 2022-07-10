@@ -19,9 +19,9 @@ import java.security.NoSuchAlgorithmException;
  * 자유게시판 댓글 컨트롤러
  */
 @RequiredArgsConstructor
-@RequestMapping("/api/comments")
+@RequestMapping("/comments")
 @RestController
-public class CommentController {
+public class CommentRestController {
 
     private final CommentService commentService;
 

@@ -48,7 +48,7 @@ public class Attach {
     private Integer isImage;
 
     @Column(nullable = false)
-    private Integer size;
+    private Long size;
 
     @CreatedDate
     private LocalDateTime registerDate;
@@ -57,7 +57,18 @@ public class Attach {
     private LocalDateTime updateDate;
 
     @Builder
-    public Attach(Long attachId, Board board, String uploadPath, String uuid, String name, String extension, Integer isImage, Integer size, LocalDateTime registerDate, LocalDateTime updateDate) {
+    public Attach(Long attachId,
+                  Board board,
+                  String uploadPath,
+                  String uuid,
+                  String name,
+                  String extension,
+                  Integer isImage,
+                  Long size,
+                  LocalDateTime registerDate,
+                  LocalDateTime updateDate
+    ) {
+
         this.attachId = attachId;
         this.board = board;
         this.uploadPath = uploadPath;
@@ -68,5 +79,14 @@ public class Attach {
         this.size = size;
         this.registerDate = registerDate;
         this.updateDate = updateDate;
+    }
+
+    /**
+     * 첨부파일 이름 + 확장자 리턴
+     *
+     * @return String
+     */
+    public String getFullName() {
+        return getName() + '.' + getExtension();
     }
 }

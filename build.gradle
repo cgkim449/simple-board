@@ -1,16 +1,15 @@
 buildscript {
-	dependencies {
-		classpath("gradle.plugin.com.ewerk.gradle.plugins:querydsl-plugin:1.0.10")
+	ext {
+		queryDslVersion = "5.0.0"
 	}
 }
 
 plugins {
-	id 'org.springframework.boot' version '2.7.1'
+	id 'org.springframework.boot' version '2.6.3'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 	id 'java'
 }
-
-apply plugin: "com.ewerk.gradle.plugins.querydsl"
 
 group = 'com.cgkim'
 version = '0.0.1-SNAPSHOT'
@@ -27,8 +26,8 @@ repositories {
 }
 
 dependencies {
-	implementation 'com.querydsl:querydsl-jpa'
-	implementation 'com.querydsl:querydsl-apt'
+	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
+	implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
 
 
 	implementation group: 'org.bgee.log4jdbc-log4j2', name: 'log4jdbc-log4j2-jdbc4.1', version: '1.16'
@@ -54,28 +53,24 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
-
-def querydslDir = 'src/main/generated'
-
+def querydslDir = "$buildDir/generated/querydsl"
+// JPA 사용 여부와 사용할 경로를 설정
 querydsl {
-	library = "com.querydsl:querydsl-apt"
 	jpa = true
 	querydslSourcesDir = querydslDir
 }
-
+// build 시 사용할 sourceSet 추가
 sourceSets {
-	main {
-		java {
-			srcDirs = ['src/main/java', querydslDir]
-		}
-	}
+	main.java.srcDir querydslDir
 }
-
-compileQuerydsl {
-
+// querydsl 컴파일시 사용할 옵션 설정
+compileQuerydsl{
 	options.annotationProcessorPath = configurations.querydsl
 }
-
+// querydsl 이 compileClassPath 를 상속하도록 설정
 configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
 	querydsl.extendsFrom compileClasspath
 }
