@@ -1,6 +1,6 @@
 package com.cgkim.simpleboard.util;
 
-import com.cgkim.simpleboard.vo.attach.AttachVo;
+import com.cgkim.simpleboard.dto.attach.AttachDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -10,84 +10,71 @@ import java.util.List;
 /**
  * 첨부파일 관련 URI 들을 제공하는 역할
  */
-@Component
 public class AttachURIProvider {
 
-    private final String staticResourceURL;
+    //TODO: 프로퍼티 하고 중복됨
+    private static final String staticResourceURL = "http://localhost:8082";
 
-    private final String thumbnailFileSuffix;
+    private static final String thumbnailFileSuffix = "_thumbnail";
 
-    private final String uploadBasePath;
+    private static final String uploadBasePath = "C://upload";
 
-    /**
-     * 정적 리소스 url, 첨부파일 업로드 경로, 썸네일 파일명 접미사 설정 주입
-     *
-     * @param staticResourceURL
-     * @param thumbnailFileSuffix
-     */
-    public AttachURIProvider(@Value("${static-resource.url}") String staticResourceURL,
-                             @Value("${thumbnail.file-suffix}") String thumbnailFileSuffix,
-                             @Value("${spring.servlet.multipart.location}") String uploadBasePath
-    ) {
-
-        this.staticResourceURL = staticResourceURL;
-        this.thumbnailFileSuffix = thumbnailFileSuffix;
-        this.uploadBasePath = uploadBasePath;
-    }
 
     /**
      * AttachVo 에 원본 이미지 URI 와 썸네일 URI 를 저장
      *
      * @param attachList
      */
-    public void setImageURIsOf(List<AttachVo> attachList) {
+    public static void setImageURIsOf(List<AttachDto> attachList) {
 
-        for (AttachVo attachVo : attachList) {
+        for (AttachDto attachDto : attachList) {
 
-            if (attachVo.isImage()) {
-                setImageURIOf(attachVo);
+            if (attachDto.isImage()) {
+                setImageURIOf(attachDto);
             }
         }
     }
 
-    private void setImageURIOf(AttachVo attachVo) {
+    private static void setImageURIOf(AttachDto attachDto) {
 
-        attachVo.setThumbnailUri(createThumbnailURIOf(attachVo));
-        attachVo.setOriginalImageUri(createOriginalImageURIOf(attachVo));
+        attachDto.setThumbnailUri(createThumbnailURIOf(attachDto));
+        attachDto.setOriginalImageUri(createOriginalImageURIOf(attachDto));
     }
 
-    private String createOriginalImageURIOf(AttachVo attachVo) {
+    private static String createOriginalImageURIOf(AttachDto attachDto) {
 
         return staticResourceURL +
                 File.separator +
-                attachVo.getUploadPath() +
+                attachDto.getUploadPath() +
                 File.separator +
-                attachVo.getUuid() +
+                attachDto.getUuid() +
                 "." +
-                attachVo.getExtension();
+                attachDto.getExtension();
     }
 
-    private String createThumbnailURIOf(AttachVo attachVo) {
+    private static String createThumbnailURIOf(AttachDto attachDto) {
 
         return staticResourceURL +
                 File.separator +
-                attachVo.getUploadPath() +
+                attachDto.getUploadPath() +
                 File.separator +
-                attachVo.getUuid() +
+                attachDto.getUuid() +
                 thumbnailFileSuffix +
                 "." +
-                attachVo.getExtension();
+                attachDto.getExtension();
     }
 
     /**
      * DB 에 저장할 thumbnail URI 생성
      *
-     * @param attachVo
-     * @return String
+     * @param uploadPath
+     * @param uuid
+     * @param extension
+     * @return
      */
-    public String createThumbnailURIForDB(AttachVo attachVo) {
+    public static String createThumbnailURIForDB(String uploadPath, String uuid, String extension) {
 
-        return attachVo.getUploadPath() + File.separator + attachVo.getUuid() + thumbnailFileSuffix + "." + attachVo.getExtension();
+        return uploadPath + File.separator + uuid + thumbnailFileSuffix + "." + extension;
     }
 
     /**
@@ -96,25 +83,28 @@ public class AttachURIProvider {
      * @param thumbnailUri
      * @return String
      */
-    public String getFullURIOf(String thumbnailUri) {
+    public static String getFullURIOf(String thumbnailUri) {
 
+        if(thumbnailUri == null) {
+            return null;
+        }
         return staticResourceURL + File.separator + thumbnailUri;
     }
 
     /**
      * 첨부파일의 절대경로 생성
      *
-     * @param attachVo
+     * @param attachDto
      * @return String
      */
-    public String getAbsolutePathOf(AttachVo attachVo) {
+    public static String getAbsolutePathOf(AttachDto attachDto) {
 
         return uploadBasePath +
                 File.separator +
-                attachVo.getUploadPath() +
+                attachDto.getUploadPath() +
                 File.separator +
-                attachVo.getUuid() +
+                attachDto.getUuid() +
                 '.' +
-                attachVo.getExtension();
+                attachDto.getExtension();
     }
 }

@@ -1,4 +1,4 @@
-package com.cgkim.simpleboard.vo.common;
+package com.cgkim.simpleboard.dto.common;
 
 import lombok.Getter;
 import lombok.Setter;

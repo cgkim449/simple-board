@@ -2,7 +2,7 @@ package com.cgkim.simpleboard.util;
 
 import com.cgkim.simpleboard.exception.AttachNotFoundException;
 import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
-import com.cgkim.simpleboard.vo.attach.AttachVo;
+import com.cgkim.simpleboard.dto.attach.AttachDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -20,32 +20,31 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class AttachDownloadResponseBuilder {
 
-    private final AttachURIProvider attachURIProvider;
 
     /**
      * 첨부파일 다운로드 요청의 응답메시지를 빌드하는 역할
      *
-     * @param attachVo
+     * @param attachDto
      * @return ResponseEntity<Resource>
      */
-    public ResponseEntity<Resource> buildResponseWith(AttachVo attachVo) {
+    public ResponseEntity<Resource> buildResponseWith(AttachDto attachDto) {
 
-        Resource resource = findResourceOf(attachVo);
+        Resource resource = findResourceOf(attachDto);
 
         return ResponseEntity
                 .ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         ContentDisposition
                                 .attachment()
-                                .filename(attachVo.getFullName(), StandardCharsets.UTF_8)
+                                .filename(attachDto.getFullName(), StandardCharsets.UTF_8)
                                 .build()
                                 .toString())
                 .body(resource);
     }
 
-    private Resource findResourceOf(AttachVo attachVo) {
+    private Resource findResourceOf(AttachDto attachDto) {
 
-        Resource resource = new FileSystemResource(attachURIProvider.getAbsolutePathOf(attachVo));
+        Resource resource = new FileSystemResource(AttachURIProvider.getAbsolutePathOf(attachDto));
 
         if (!resource.exists()) {
             throw new AttachNotFoundException(ErrorCode.ATTACH_NOT_FOUND);

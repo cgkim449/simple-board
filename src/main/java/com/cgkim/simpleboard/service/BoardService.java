@@ -2,27 +2,32 @@ package com.cgkim.simpleboard.service;
 
 import com.cgkim.simpleboard.domain.Attach;
 import com.cgkim.simpleboard.domain.Board;
+import com.cgkim.simpleboard.domain.Category;
+import com.cgkim.simpleboard.domain.Member;
+import com.cgkim.simpleboard.dto.common.GuestPasswordCheckRequest;
 import com.cgkim.simpleboard.exception.BoardInsertFailedException;
-import com.cgkim.simpleboard.exception.BoardNotFoundException;
+import com.cgkim.simpleboard.exception.GuestPasswordInvalidException;
+import com.cgkim.simpleboard.exception.GuestPasswordMismatchException;
+import com.cgkim.simpleboard.exception.LoginRequiredException;
+import com.cgkim.simpleboard.exception.NoAuthorizationException;
 import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
-import com.cgkim.simpleboard.repository.AttachRepository;
 import com.cgkim.simpleboard.repository.BoardRepository;
-import com.cgkim.simpleboard.util.AttachURIProvider;
-import com.cgkim.simpleboard.util.SHA256PasswordEncoder;
-import com.cgkim.simpleboard.vo.attach.AttachVo;
-import com.cgkim.simpleboard.vo.board.BoardDetailResponse;
-import com.cgkim.simpleboard.vo.board.BoardListResponse;
-import com.cgkim.simpleboard.vo.board.BoardSaveRequest;
-import com.cgkim.simpleboard.vo.board.BoardSearchRequest;
-import com.cgkim.simpleboard.vo.board.BoardUpdateRequest;
+import com.cgkim.simpleboard.repository.CategoryRepository;
+import com.cgkim.simpleboard.dto.attach.AttachDto;
+import com.cgkim.simpleboard.dto.board.BoardDetailResponse;
+import com.cgkim.simpleboard.dto.board.BoardListResponse;
+import com.cgkim.simpleboard.dto.board.BoardSaveRequest;
+import com.cgkim.simpleboard.dto.board.BoardSearchRequest;
+import com.cgkim.simpleboard.dto.board.BoardUpdateRequest;
+import com.cgkim.simpleboard.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -31,12 +36,54 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
 
-    private final AttachRepository attachRepository;
+    private final MemberRepository memberRepository;
 
-    private final SHA256PasswordEncoder sha256PasswordEncoder;
+    private final CategoryRepository categoryRepository;
 
-    private final AttachURIProvider attachURIProvider;
 
+    /**
+     * 회원 게시물 작성
+     *
+     * @param username
+     * @param boardSaveRequest
+     * @param attachInsertList
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Long writeMemberBoard(String username, BoardSaveRequest boardSaveRequest, List<AttachDto> attachInsertList) {
+
+        try {
+            //Member 엔티티 조회
+            Member member = memberRepository.findByUsername(username);
+
+            //Category 엔티티 조회
+            Category category = categoryRepository.findByCategoryId(boardSaveRequest.getCategoryId());
+
+            //AttachDto -> Attach 엔티티
+            List<Attach> insertAttaches = toAttaches(attachInsertList);
+
+            //Board 엔티티 생성
+            Board board = Board.createBoard(
+                    member,
+                    category,
+                    insertAttaches,
+                    boardSaveRequest.getTitle(),
+                    boardSaveRequest.getContent()
+            );
+
+            board.updateHasAttach(); //첨부파일 유무 업데이트
+            board.updateThumbnailUri(); //썸네일 URI 업데이트
+
+            boardRepository.save(board); //Board 저장
+
+            return board.getBoardId();
+
+        } catch (Exception e) { //게시물 등록 실패시 생성했던 파일 삭제
+
+            e.printStackTrace();
+            throw new BoardInsertFailedException(attachInsertList, ErrorCode.BOARD_INSERT_FAILED);
+        }
+    }
 
     /**
      * 익명 게시물 작성
@@ -46,22 +93,31 @@ public class BoardService {
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Long writeBoard(BoardSaveRequest boardSaveRequest, List<AttachVo> attachInsertList) {
+    public Long writeGuestBoard(BoardSaveRequest boardSaveRequest, List<AttachDto> attachInsertList) {
 
         try {
-            Board board = boardSaveRequest.toBoard();
-            boardRepository.save(board); //글 저장
-            Long savedBoardId = board.getBoardId();
+            //Category 엔티티 조회
+            Category category = categoryRepository.findByCategoryId(boardSaveRequest.getCategoryId());
 
-            if (isNotEmpty(attachInsertList)) {
+            //AttachDto -> Attach 엔티티
+            List<Attach> insertAttaches = toAttaches(attachInsertList);
 
-                insertAttaches(attachInsertList, board);  //첨부파일 insert
+            //Board 엔티티 생성
+            Board board = Board.createBoard(
+                    category,
+                    insertAttaches,
+                    boardSaveRequest.getTitle(),
+                    boardSaveRequest.getContent(),
+                    boardSaveRequest.getGuestNickname(),
+                    boardSaveRequest.getGuestPassword()
+            );
 
-                updateHasAttach(board);
-                updateThumbnailUri(attachInsertList, board); //썸네일 URI update
-            }
+            board.updateHasAttach(); //첨부파일 유무 업데이트
+            board.updateThumbnailUri(); //썸네일 URI 업데이트
 
-            return savedBoardId;
+            boardRepository.save(board); //Board 저장
+
+            return board.getBoardId();
 
         } catch (Exception e) { //게시물 등록 실패시 생성했던 파일 삭제
 
@@ -70,54 +126,18 @@ public class BoardService {
         }
     }
 
-    private void updateThumbnailUri(List<AttachVo> attachList, Board board) {
+    private List<Attach> toAttaches(List<AttachDto> attachInsertList) {
 
-        for (AttachVo attach : attachList) {
+        List<Attach> insertAttaches =  new ArrayList<>();
 
-            if (attach.isImage()) {
-
-                String thumbnailUri = attachURIProvider.createThumbnailURIForDB(attach);
-
-                board.updateThumbnailUri(thumbnailUri);
-
-                return;
+        if(attachInsertList != null) {
+            for (AttachDto attachDto : attachInsertList) {
+                insertAttaches.add(attachDto.toAttach());
             }
         }
 
-        board.updateThumbnailUri("");
+        return insertAttaches;
     }
-
-    private void updateHasAttach(Board board) {
-        //TODO: select count 로 바꾸기
-        List<Attach> attaches = attachRepository.findAll(board.getBoardId());
-        Integer hasAttach = attaches.size() > 0 ? 1 : 0;
-
-        board.updateHasAttach(hasAttach);
-    }
-
-    private void insertAttaches(List<AttachVo> attachInsertList, Board board) {
-
-        for (AttachVo attachVo : attachInsertList) {
-
-            Attach attach = Attach.builder()
-                    .attachId(attachVo.getAttachId())
-                    .board(board)
-                    .uploadPath(attachVo.getUploadPath())
-                    .uuid(attachVo.getUuid())
-                    .name(attachVo.getName())
-                    .extension(attachVo.getExtension())
-                    .isImage(attachVo.getIsImage() ? 1 : 0)
-                    .size(attachVo.getSize())
-                    .build();
-
-            attachRepository.save(attach);
-        }
-    }
-
-    private boolean isNotEmpty(List<AttachVo> attachList) {
-        return attachList != null && !attachList.isEmpty();
-    }
-
 
     /**
      * 게시물 상세 조회
@@ -125,39 +145,61 @@ public class BoardService {
      * @param boardId
      * @return BoardDetailResponse
      */
-    //TODO: 조회수 증가랑 분리해야하나(트랜잭션때문에)
     @Transactional(rollbackFor = Exception.class)
     public BoardDetailResponse viewBoardDetail(Long boardId) {
 
         Board board = boardRepository.findById(boardId);
 
-        if(board == null) {
-            throw new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND);
+        board.increaseViewCount(); //조회수 1 증가
+
+        return BoardDetailResponse.from(board);
+    }
+
+    /**
+     * 게시물 삭제
+     *
+     * @param boardId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public List<AttachDto> deleteBoard(Long boardId) {
+        return boardRepository.deleteByBoardId(boardId);
+    }
+
+    /**
+     * 게시물 목록 조회
+     *
+     * @param boardSearchRequest
+     * @return
+     */
+    public List<BoardListResponse> viewBoardList(BoardSearchRequest boardSearchRequest) {
+
+        List<Board> filteredBoards = boardRepository.findAll(boardSearchRequest);
+
+        return getBoardListResponsesFrom(filteredBoards);
+    }
+
+    private List<BoardListResponse> getBoardListResponsesFrom(List<Board> filteredBoards) {
+
+        List<BoardListResponse> boardListResponses = new ArrayList<>();
+
+        for (Board board : filteredBoards) {
+            boardListResponses.add(BoardListResponse.from(board));
         }
 
-        List<Attach> attaches = board.getAttaches();
+        return boardListResponses;
+    }
 
-        List<AttachVo> attachVoList = new ArrayList<>();
 
-        //TODO: 다시해야됨
-        for (Attach attach : attaches) {
-            attachVoList.add(AttachVo.builder()
-                    .attachId(attach.getAttachId())
-                    .boardId(board.getBoardId())
-                    .uploadPath(attach.getUploadPath())
-                    .uuid(attach.getUuid())
-                    .name(attach.getName())
-                    .extension(attach.getExtension())
-                    .isImage(attach.getIsImage() == 1)
-                    .size(attach.getSize())
-                    .build());
-        }
+    /**
+     * 게시물 갯수 조회
+     *
+     * @param boardSearchRequest
+     * @return
+     */
+    public Long getTotalCount(BoardSearchRequest boardSearchRequest) {
 
-        attachURIProvider.setImageURIsOf(attachVoList);
-        BoardDetailResponse boardDetailResponse = BoardDetailResponse.from(board);
-        boardDetailResponse.setAttachList(attachVoList);
-
-        return boardDetailResponse;
+        return boardRepository.count(boardSearchRequest);
     }
 
     /**
@@ -165,57 +207,86 @@ public class BoardService {
      *
      * @param boardId
      * @param boardUpdateRequest
+     * @param attachInsertList
+     * @param attachDeleteRequest
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Long updateBoard(Long boardId,
-                            BoardUpdateRequest boardUpdateRequest
+    public List<AttachDto> updateBoard(Long boardId,
+                                       BoardUpdateRequest boardUpdateRequest,
+                                       List<AttachDto> attachInsertList,
+                                       Long[] attachDeleteRequest
     ) {
+
+        //AttachDto -> Attach 엔티티
+        List<Attach> insertAttaches = toAttaches(attachInsertList);
 
         Board board = boardRepository.findById(boardId);
 
-        if(board == null) {
-            throw new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND);
+        board.update(boardUpdateRequest.getTitle(), boardUpdateRequest.getContent(), insertAttaches, attachDeleteRequest);
+
+        board.updateHasAttach(); //첨부파일 유무 업데이트
+        board.updateThumbnailUri(); //썸네일 URI 업데이트
+
+        return null;
+    }
+
+
+    public void checkOwner(Long boardId, String username, GuestPasswordCheckRequest guestPasswordCheckRequest) throws NoSuchAlgorithmException {
+
+        Board board = boardRepository.findById(boardId);
+
+        if (board.getAdmin() != null) { //관리자 글이면
+            throw new NoAuthorizationException(ErrorCode.NO_AUTHORIZATION);
+
+        } else if (board.getGuestNickname() != null) { //익명 글이면
+
+            validateGuestPassword(guestPasswordCheckRequest); //비밀번호 유효성 검증
+            checkGuestPassword(boardId, guestPasswordCheckRequest); //비밀번호 체크
+
+        } else if (board.getMember() != null) { //회원 글이면
+
+            if (username == null) {
+                throw new LoginRequiredException(ErrorCode.LOGIN_REQUIRED);
+            }
+
+            Member member = memberRepository.findByUsername(username);
+
+            if (member == null) {
+                throw new NoAuthorizationException(ErrorCode.NO_AUTHORIZATION);
+            }
+
+            //TODO: 동일 비교 공부 memberId 가 같으면 같은 객체이다
+            if (board.getMember() != member) { //검증
+                throw new NoAuthorizationException(ErrorCode.NO_AUTHORIZATION);
+            }
         }
+    }
 
-        board.update(boardUpdateRequest.getTitle(), boardUpdateRequest.getContent());
+    private void validateGuestPassword(GuestPasswordCheckRequest guestPasswordCheckRequest) {
 
-        return boardId;
+        String guestPassword = guestPasswordCheckRequest.getGuestPassword();
+
+        if (guestPassword == null || guestPassword.equals("")) {
+            throw new GuestPasswordInvalidException(ErrorCode.GUEST_PASSWORD_INVALID);
+        }
     }
 
     /**
-     * 게시물 삭제
+     * 익명 게시물 비밀번호 체크
      *
      * @param boardId
+     * @param guestPasswordCheckRequest
+     * @throws NoSuchAlgorithmException
      */
-    @Transactional(rollbackFor = Exception.class)
-    public void deleteBoard(Long boardId) {
-        boardRepository.deleteById(boardId);
-    }
+    public void checkGuestPassword(Long boardId, GuestPasswordCheckRequest guestPasswordCheckRequest) throws NoSuchAlgorithmException {
 
-    /**
-     * 게시물 목록 조회
-     *
-     * @return
-     */
-    public List<BoardListResponse> viewBoardList(BoardSearchRequest boardSearchRequest) {
+        String guestPassword = guestPasswordCheckRequest.getGuestPassword();
 
-        List<Board> allBoards = boardRepository.findAll(boardSearchRequest);
+        Board board = boardRepository.findById(boardId);
 
-        List<BoardListResponse> boardListResponses = new ArrayList<>();
-
-        for (Board board : allBoards) {
-            boardListResponses.add(BoardListResponse.from(board));
+        if (board.isPasswordMismatch(guestPassword)) {
+            throw new GuestPasswordMismatchException(ErrorCode.GUEST_PASSWORD_MISMATCH);
         }
-
-        return boardListResponses;
-    }
-
-    //TODO: 검색
-    public long getTotalCount(BoardSearchRequest boardSearchRequest) {
-
-        long count = boardRepository.count(boardSearchRequest);
-
-        return count;
     }
 }

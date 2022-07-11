@@ -1,5 +1,6 @@
 package com.cgkim.simpleboard.domain;
 
+import com.cgkim.simpleboard.dto.attach.AttachDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 import java.time.LocalDateTime;
 
 import static javax.persistence.FetchType.LAZY;
@@ -45,7 +47,7 @@ public class Attach {
     @Column(length = 20, nullable = false)
     private String extension;
 
-    private Integer isImage;
+    private Boolean isImage;
 
     @Column(nullable = false)
     private Long size;
@@ -63,7 +65,7 @@ public class Attach {
                   String uuid,
                   String name,
                   String extension,
-                  Integer isImage,
+                  Boolean isImage,
                   Long size,
                   LocalDateTime registerDate,
                   LocalDateTime updateDate
@@ -93,5 +95,15 @@ public class Attach {
         this.board = board;
         board.getAttaches().add(this);
         //이 두줄을 원자적으로 묶는것(그냥 편의에 의해 이렇게 하는것)
+    }
+
+    //==생성메서드==/
+    public static Attach createAttach(Board board) {
+        Attach attach = new Attach();
+        attach.setBoard(board);
+
+        //TODO: attach 에 넣을 것들 set 하거나 update 메서드 만들어서 하자
+
+        return attach;
     }
 }

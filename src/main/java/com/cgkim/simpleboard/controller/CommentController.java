@@ -1,8 +1,8 @@
-package com.cgkim.simpleboard.controller.api;
+package com.cgkim.simpleboard.controller;
 
 import com.cgkim.simpleboard.response.SuccessResponse;
 import com.cgkim.simpleboard.service.CommentService;
-import com.cgkim.simpleboard.vo.comment.CommentSaveRequest;
+import com.cgkim.simpleboard.dto.comment.CommentSaveRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,7 +21,7 @@ import java.security.NoSuchAlgorithmException;
 @RequiredArgsConstructor
 @RequestMapping("/comments")
 @RestController
-public class CommentRestController {
+public class CommentController {
 
     private final CommentService commentService;
 

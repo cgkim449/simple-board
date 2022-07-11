@@ -2,7 +2,7 @@ package com.cgkim.simpleboard.exception;
 
 
 import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
-import com.cgkim.simpleboard.vo.attach.AttachVo;
+import com.cgkim.simpleboard.dto.attach.AttachDto;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ public class BoardInsertFailedException extends InsertFailedException{
      * @param attachSaveList
      * @param errorCode
      */
-    public BoardInsertFailedException(List<AttachVo> attachSaveList, ErrorCode errorCode) {
+    public BoardInsertFailedException(List<AttachDto> attachSaveList, ErrorCode errorCode) {
         super(attachSaveList, errorCode);
     }
 }

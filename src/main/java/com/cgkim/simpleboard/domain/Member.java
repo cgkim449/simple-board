@@ -1,5 +1,6 @@
 package com.cgkim.simpleboard.domain;
 
+import com.cgkim.simpleboard.util.SHA256PasswordEncoder;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,15 +14,11 @@ import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
-import static javax.persistence.FetchType.LAZY;
 
 //TODO: one to many, 연관관계 편의 메서드 (다른 도메인들도 전부)
 
@@ -75,5 +72,18 @@ public class Member {
         this.nickname = nickname;
         this.registerDate = registerDate;
         this.updateDate = updateDate;
+    }
+
+    public static Member createMember(String username, String nickname, String password) throws NoSuchAlgorithmException {
+
+        return Member.builder()
+                .username(username)
+                .nickname(nickname)
+                .password(SHA256PasswordEncoder.getHash(password))
+                .build();
+    }
+
+    public boolean isPasswordMismatch(String password) throws NoSuchAlgorithmException {
+        return !this.password.equals(SHA256PasswordEncoder.getHash(password));
     }
 }

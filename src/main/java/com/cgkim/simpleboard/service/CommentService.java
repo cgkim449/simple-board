@@ -4,7 +4,7 @@ import com.cgkim.simpleboard.domain.Comment;
 import com.cgkim.simpleboard.repository.CommentRepository;
 import com.cgkim.simpleboard.exception.CommentNotFoundException;
 import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
-import com.cgkim.simpleboard.vo.comment.CommentSaveRequest;
+import com.cgkim.simpleboard.dto.comment.CommentSaveRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

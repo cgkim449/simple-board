@@ -1,8 +1,7 @@
-package com.cgkim.simpleboard.vo.board;
+package com.cgkim.simpleboard.dto.board;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 
 @Getter

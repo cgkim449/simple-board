@@ -1,15 +1,24 @@
-package com.cgkim.simpleboard.vo.attach;
+package com.cgkim.simpleboard.dto.attach;
 
+import com.cgkim.simpleboard.domain.Attach;
+import com.cgkim.simpleboard.domain.Board;
+import com.cgkim.simpleboard.dto.board.BoardDetailResponse;
+import com.cgkim.simpleboard.util.AttachURIProvider;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import javax.persistence.Transient;
+import java.util.List;
 
 /**
  * 첨부파일 VO
  */
-@Data
-@NoArgsConstructor
-public class AttachVo {
+@Getter
+@Setter
+public class AttachDto {
 
     private Long attachId;
 
@@ -30,7 +39,7 @@ public class AttachVo {
     private String name;
     private String extension; // 확장자
 
-    private boolean isImage; // 이미지 여부
+    private Boolean isImage; // 이미지 여부
 
     private long size;
 
@@ -53,10 +62,11 @@ public class AttachVo {
     }
 
     private String thumbnailUri;
+
     private String originalImageUri;
 
     @Builder
-    public AttachVo(Long attachId, Long boardId, Long questionId, Long answerId, Long faqId, Long noticeId, String uploadPath, String uuid, String name, String extension, boolean isImage, long size, String thumbnailUri, String originalImageUri) {
+    public AttachDto(Long attachId, Long boardId, Long questionId, Long answerId, Long faqId, Long noticeId, String uploadPath, String uuid, String name, String extension, Boolean isImage, long size, String thumbnailUri, String originalImageUri) {
 
         this.attachId = attachId;
         this.boardId = boardId;
@@ -83,5 +93,15 @@ public class AttachVo {
         return getName() + '.' + getExtension();
     }
 
-
+    public Attach toAttach() {
+        return Attach.builder()
+                .attachId(attachId)
+                .uploadPath(uploadPath)
+                .uuid(uuid)
+                .name(name)
+                .extension(extension)
+                .isImage(isImage)
+                .size(size)
+                .build();
+    }
 }

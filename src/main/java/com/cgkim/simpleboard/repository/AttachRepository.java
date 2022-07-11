@@ -1,7 +1,10 @@
 package com.cgkim.simpleboard.repository;
 
 import com.cgkim.simpleboard.domain.Attach;
+import com.cgkim.simpleboard.domain.Category;
 import com.cgkim.simpleboard.domain.QAttach;
+import com.cgkim.simpleboard.exception.AttachNotFoundException;
+import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -20,22 +23,13 @@ public class AttachRepository {
         em.persist(attach);
     }
 
-    public List<Attach> findAll(Long boardId) {
+    public Attach findByAttachId(Long attachId) {
+        Attach attach = em.find(Attach.class, attachId);
 
-        QAttach attach = QAttach.attach;
-
-        JPAQueryFactory query = new JPAQueryFactory(em);
-
-        return query.select(attach)
-                .from(attach)
-                .where(boardEq(boardId))
-                .fetch();
-    }
-
-    private BooleanExpression boardEq(Long boardId) {
-        if (boardId == null || boardId == 0) {
-            return null;
+        if (attach == null) {
+            throw new AttachNotFoundException(ErrorCode.ATTACH_NOT_FOUND);
         }
-        return QAttach.attach.board.boardId.eq(boardId);
+
+        return attach;
     }
 }

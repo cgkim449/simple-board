@@ -1,9 +1,12 @@
-package com.cgkim.simpleboard.vo.board;
+package com.cgkim.simpleboard.dto.board;
 
 import com.cgkim.simpleboard.domain.Board;
 import com.cgkim.simpleboard.domain.Category;
+import com.cgkim.simpleboard.dto.attach.AttachDto;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.List;
 
 /**
  * 게시물 작성 요청
@@ -32,18 +35,5 @@ public class BoardSaveRequest {
         this.guestNickname = guestNickname;
         this.guestPassword = guestPassword;
         this.guestPasswordConfirm = guestPasswordConfirm;
-    }
-
-    public Board toBoard() {
-
-        return Board.builder()
-                .category(Category.builder()
-                        .categoryId(categoryId)
-                        .build())
-                .title(title)
-                .content(content)
-                .guestNickname(guestNickname)
-                .guestPassword(guestPassword)
-                .build();
     }
 }

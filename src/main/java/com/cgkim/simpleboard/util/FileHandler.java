@@ -1,6 +1,6 @@
 package com.cgkim.simpleboard.util;
 
-import com.cgkim.simpleboard.vo.attach.AttachVo;
+import com.cgkim.simpleboard.dto.attach.AttachDto;
 import net.coobird.thumbnailator.Thumbnailator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -49,7 +49,7 @@ public class FileHandler {
      * @return List<AttachVo>
      * @throws IOException
      */
-    public List<AttachVo> createFiles(MultipartFile[] multipartFiles) throws IOException {
+    public List<AttachDto> createFiles(MultipartFile[] multipartFiles) throws IOException {
 
         if(multipartFiles == null) {
             return null;
@@ -57,17 +57,17 @@ public class FileHandler {
 
         String uploadPath = createUploadPath();
 
-        List<AttachVo> attachSaveList = new ArrayList<>();
+        List<AttachDto> attachSaveList = new ArrayList<>();
 
         for (MultipartFile multipartFile : multipartFiles) {
 
             if(!multipartFile.isEmpty()) {
 
-                AttachVo attachVo = buildAttachWith(uploadPath, multipartFile);
+                AttachDto attachDto = buildAttachWith(uploadPath, multipartFile);
 
-                attachSaveList.add(attachVo); // List에 AttachVo 추가
+                attachSaveList.add(attachDto); // List에 AttachVo 추가
 
-                createFile(uploadPath, multipartFile, attachVo); // 파일 생성
+                createFile(uploadPath, multipartFile, attachDto); // 파일 생성
             }
         }
 
@@ -88,7 +88,7 @@ public class FileHandler {
         return uploadPath;
     }
 
-    private void createFile(String uploadPath, MultipartFile multipartFile, AttachVo attach) throws IOException {
+    private void createFile(String uploadPath, MultipartFile multipartFile, AttachDto attach) throws IOException {
 
         String saveFileName = attach.getUuid() + "." + attach.getExtension();
         File saveFile = new File(uploadPath, saveFileName);
@@ -101,7 +101,7 @@ public class FileHandler {
         }
     }
 
-    private AttachVo buildAttachWith(String uploadPath, MultipartFile multipartFile) {
+    private AttachDto buildAttachWith(String uploadPath, MultipartFile multipartFile) {
 
         uploadPath = uploadPath.replace(uploadBasePath + File.separator, "");
 
@@ -114,7 +114,7 @@ public class FileHandler {
         long fileSize = multipartFile.getSize();
         boolean isImage = multipartFile.getContentType().startsWith("image");
 
-        return AttachVo.builder()
+        return AttachDto.builder()
                 .uploadPath(uploadPath)
                 .uuid(uuid.toString())
                 .name(fileName)
@@ -152,13 +152,13 @@ public class FileHandler {
      *
      * @param attachesDeleteRequest
      */
-    public void deleteFiles(List<AttachVo> attachesDeleteRequest){
+    public void deleteFiles(List<AttachDto> attachesDeleteRequest){
 
         if(attachesDeleteRequest == null || attachesDeleteRequest.isEmpty()) {
             return;
         }
 
-        for (AttachVo attach : attachesDeleteRequest) {
+        for (AttachDto attach : attachesDeleteRequest) {
 
             String saveFilePath = getSaveFilePath(attach);
             new File(saveFilePath).delete();
@@ -179,7 +179,7 @@ public class FileHandler {
         return saveFileAbsolutePath.replace("." + extension, thumbnailFileSuffix + "." + extension);
     }
 
-    private String getSaveFilePath(AttachVo attach) {
+    private String getSaveFilePath(AttachDto attach) {
 
         String uploadPath = attach.getUploadPath();
         String uuid = attach.getUuid();

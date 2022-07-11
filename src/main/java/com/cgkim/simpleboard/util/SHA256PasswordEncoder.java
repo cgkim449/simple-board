@@ -1,28 +1,14 @@
 package com.cgkim.simpleboard.util;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
  * 비밀번호를 SHA256으로 암호화하는 역할
  */
-@Component
 public class SHA256PasswordEncoder {
 
-    private final String algorithm;
-
-    /**
-     * 암호화 알고리즘 설정 주입
-     *
-     * @param algorithm
-     */
-    public SHA256PasswordEncoder(@Value("${password.encoder-algorithm}") String algorithm) {
-
-        this.algorithm = algorithm;
-    }
+    private static final String algorithm = "SHA-256";
 
     /**
      * 해싱
@@ -31,7 +17,7 @@ public class SHA256PasswordEncoder {
      * @return String
      * @throws NoSuchAlgorithmException
      */
-    public String getHash(String message) throws NoSuchAlgorithmException {
+    public static String getHash(String message) throws NoSuchAlgorithmException {
 
         MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
         messageDigest.update(message.getBytes());
@@ -46,7 +32,7 @@ public class SHA256PasswordEncoder {
      * @param result
      * @return String
      */
-    private String bytesToString(byte[] result) {
+    private static String bytesToString(byte[] result) {
 
         StringBuilder stringBuilder = new StringBuilder();
 

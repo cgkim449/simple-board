@@ -1,11 +1,11 @@
-package com.cgkim.simpleboard.vo.board;
+package com.cgkim.simpleboard.dto.board;
 
 import com.cgkim.simpleboard.domain.Board;
+import com.cgkim.simpleboard.util.AttachURIProvider;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -14,34 +14,34 @@ import java.util.Date;
 @Getter
 public class BoardListResponse {
 
-    private Long boardId;
+    private final Long boardId;
 
-    private String title;
+    private final String title;
 
-    private int viewCount;
+    private final int viewCount;
 
-    private Integer hasAttach;
-
-    @JsonFormat(pattern="yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
-    private Date registerDate;
+    private final Boolean hasAttach;
 
     @JsonFormat(pattern="yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
-    private Date updateDate;
+    private final Date registerDate;
 
-    private Long categoryId;
+    @JsonFormat(pattern="yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
+    private final Date updateDate;
 
-    private String categoryName;
+    private final Long categoryId;
 
-    private String guestNickname;
+    private final String categoryName;
 
-    private String memberNickname;
+    private final String guestNickname;
 
-    private String adminNickname;
+    private final String memberNickname;
 
-    private String thumbnailUri;
+    private final String adminNickname;
+
+    private final String thumbnailUri;
 
     @Builder
-    public BoardListResponse(Long boardId, String title, int viewCount, int hasAttach, Date registerDate, Date updateDate, Long categoryId, String categoryName, String guestNickname, String memberNickname, String adminNickname, String thumbnailUri) {
+    public BoardListResponse(Long boardId, String title, int viewCount, Boolean hasAttach, Date registerDate, Date updateDate, Long categoryId, String categoryName, String guestNickname, String memberNickname, String adminNickname, String thumbnailUri) {
         this.boardId = boardId;
         this.title = title;
         this.viewCount = viewCount;
@@ -62,9 +62,13 @@ public class BoardListResponse {
                 .boardId(board.getBoardId())
                 .categoryId(board.getCategory().getCategoryId())
                 .categoryName(board.getCategory().getName())
-                .hasAttach(board.getHasAttach() == null || board.getHasAttach() == 0 ? 0 : 1)
+                .hasAttach(board.getHasAttach())
                 .title(board.getTitle())
                 .guestNickname(board.getGuestNickname())
+                .memberNickname(board.getMember() != null ? board.getMember().getNickname() : null)
+                .adminNickname(board.getAdmin() != null ? board.getAdmin().getNickname() : null)
+                .viewCount(board.getViewCount())
+                .thumbnailUri(AttachURIProvider.getFullURIOf(board.getThumbnailUri()))
                 .registerDate(board.getRegisterDate())
                 .updateDate(board.getUpdateDate())
                 .build();

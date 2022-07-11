@@ -1,8 +1,7 @@
-package com.cgkim.simpleboard.vo.board;
+package com.cgkim.simpleboard.dto.board;
 
 import lombok.Getter;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 
 /**

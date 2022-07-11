@@ -2,7 +2,7 @@ package com.cgkim.simpleboard.exception;
 
 
 import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
-import com.cgkim.simpleboard.vo.attach.AttachVo;
+import com.cgkim.simpleboard.dto.attach.AttachDto;
 import lombok.Getter;
 
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.List;
 public class InsertFailedException extends BusinessException{
 
     @Getter
-    private final List<AttachVo> attachSaveList;
+    private final List<AttachDto> attachSaveList;
 
     /**
      * 물리적 파일이 생성된 첨부파일 목록 및 에러코드 주입
@@ -22,7 +22,7 @@ public class InsertFailedException extends BusinessException{
      * @param attachSaveList
      * @param errorCode
      */
-    public InsertFailedException(List<AttachVo> attachSaveList, ErrorCode errorCode) {
+    public InsertFailedException(List<AttachDto> attachSaveList, ErrorCode errorCode) {
         super(errorCode);
         this.attachSaveList = attachSaveList;
     }

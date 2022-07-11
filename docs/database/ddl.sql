@@ -1,4 +1,4 @@
-#TODO: pk, constraint 등을 alter table 로 수정
+-- TODO: pk, constraint 등을 alter table 로 수정
 
 CREATE TABLE admin
 (

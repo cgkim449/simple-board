@@ -1,4 +1,4 @@
-package com.cgkim.simpleboard.vo.comment;
+package com.cgkim.simpleboard.dto.comment;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
