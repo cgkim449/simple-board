@@ -1,6 +1,8 @@
 package com.cgkim.simpleboard.repository;
 
 import com.cgkim.simpleboard.domain.Member;
+import com.cgkim.simpleboard.exception.MemberNotFoundException;
+import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -68,9 +70,15 @@ public class MemberRepository {
 
         JPAQueryFactory query = new JPAQueryFactory(em);
 
-        return query.select(member)
+        Member fetchedMember = query.select(member)
                 .from(member)
                 .where(usernameEq(username))
                 .fetchOne();
+
+        if(fetchedMember == null) {
+            throw new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND);
+        }
+
+        return fetchedMember;
     }
 }

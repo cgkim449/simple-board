@@ -16,12 +16,23 @@ public class CommentSaveRequest {
 
     private final String guestNickname;
 
+    private final String guestPassword;
+
+    private final String guestPasswordConfirm;
+
     @Builder
-    public CommentSaveRequest(Long boardId, String content, String guestNickname) {
+    public CommentSaveRequest(Long boardId,
+                              String content,
+                              String guestNickname,
+                              String guestPassword,
+                              String guestPasswordConfirm
+    ) {
 
         this.boardId = boardId;
         this.content = content;
         this.guestNickname = guestNickname;
+        this.guestPassword = guestPassword;
+        this.guestPasswordConfirm = guestPasswordConfirm;
     }
 
     public Comment toComment() {

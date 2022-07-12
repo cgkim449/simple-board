@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO: one to many, 연관관계 편의 메서드 (다른 도메인들도 전부)
 
 @Getter
 @NoArgsConstructor

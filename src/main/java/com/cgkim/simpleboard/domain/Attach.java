@@ -1,6 +1,5 @@
 package com.cgkim.simpleboard.domain;
 
-import com.cgkim.simpleboard.dto.attach.AttachDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +15,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
 import java.time.LocalDateTime;
 
 import static javax.persistence.FetchType.LAZY;
@@ -83,21 +81,6 @@ public class Attach {
         this.updateDate = updateDate;
     }
 
-    public String getFullName() {
-        return getName() + '.' + getExtension();
-    }
-
-    //==연관관계 편의 메서드==//
-    //연관관계 편의 메서드의 위치는 연관관계 주인인 쪽이 좋다?
-    //양방향일때 연관관계 편의 메서드를 쓰면 편하다
-    //자식에도 넣어주고 부모에도 넣어주는 역할을 함
-    public void setBoard(Board board) {
-        this.board = board;
-        board.getAttaches().add(this);
-        //이 두줄을 원자적으로 묶는것(그냥 편의에 의해 이렇게 하는것)
-    }
-
-    //==생성메서드==/
     public static Attach createAttach(Board board) {
         Attach attach = new Attach();
         attach.setBoard(board);
@@ -106,4 +89,22 @@ public class Attach {
 
         return attach;
     }
+
+    public void setBoard(Board board) {
+
+        if (this.board != null) {
+            this.board.getAttaches().remove(this);
+        }
+
+        this.board = board;
+
+        if(!board.getAttaches().contains(this)) {
+            board.getAttaches().add(this);
+        }
+    }
+
+    public String getFullName() {
+        return getName() + '.' + getExtension();
+    }
+
 }

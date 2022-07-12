@@ -1,6 +1,6 @@
 package com.cgkim.simpleboard.domain;
 
-import com.cgkim.simpleboard.domain.Board;
+import com.cgkim.simpleboard.util.SHA256PasswordEncoder;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +16,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
 
@@ -49,21 +52,21 @@ public class Comment {
     private String guestPassword;
 
     @CreatedDate
-    private LocalDateTime registerDate;
+    private Date registerDate;
 
     @LastModifiedDate
-    private LocalDateTime updateDate;
+    private Date updateDate;
 
     @Builder
-    public Comment(Long commentId,
-                   Board board,
-                   Member member,
-                   Admin admin,
-                   String content,
-                   String guestNickname,
-                   String guestPassword,
-                   LocalDateTime registerDate,
-                   LocalDateTime updateDate
+    private Comment(Long commentId,
+                    Board board,
+                    Member member,
+                    Admin admin,
+                    String content,
+                    String guestNickname,
+                    String guestPassword,
+                    Date registerDate,
+                    Date updateDate
     ) {
 
         this.commentId = commentId;
@@ -75,5 +78,74 @@ public class Comment {
         this.guestPassword = guestPassword;
         this.registerDate = registerDate;
         this.updateDate = updateDate;
+    }
+
+    public static Comment createComment(Board board,
+                                        String content,
+                                        String guestNickname,
+                                        String guestPassword
+    ) throws NoSuchAlgorithmException {
+
+        Comment comment = Comment.builder()
+                .content(content)
+                .guestNickname(guestNickname)
+                .guestPassword(SHA256PasswordEncoder.getHash(guestPassword))
+                .build();
+
+        comment.setBoard(board);
+
+        return comment;
+    }
+
+    public static Comment createComment(Board board,
+                                        Member member,
+                                        String content
+    ) throws NoSuchAlgorithmException {
+
+        Comment comment = Comment.builder()
+                .content(content)
+                .build();
+
+        comment.setBoard(board);
+        comment.setMember(member);
+
+        return comment;
+    }
+
+    public void setBoard(Board board) {
+
+        if (this.board != null) {
+            this.board.getComments().remove(this);
+        }
+
+        this.board = board;
+
+        if (!board.getComments().contains(this)) {
+            board.getComments().add(this);
+        }
+    }
+
+    public void setMember(Member member) {
+
+        if (this.member != null) {
+            this.member.getComments().remove(this);
+        }
+
+        this.member = member;
+
+        if (!member.getComments().contains(this)) {
+            member.getComments().add(this);
+        }
+    }
+
+    /**
+     * 익명 글 비밀번호 검증
+     *
+     * @param guestPassword
+     * @return
+     * @throws NoSuchAlgorithmException
+     */
+    public boolean isPasswordMismatch(String guestPassword) throws NoSuchAlgorithmException {
+        return !this.guestPassword.equals(SHA256PasswordEncoder.getHash(guestPassword));
     }
 }

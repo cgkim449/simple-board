@@ -6,7 +6,6 @@ import com.cgkim.simpleboard.dto.attach.AttachDto;
 import com.cgkim.simpleboard.exception.BoardNotFoundException;
 import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
 import com.cgkim.simpleboard.dto.board.BoardSearchRequest;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +48,7 @@ public class BoardRepository {
      * @return
      */
     public Board findById(Long boardId) {
+        //TODO: query 싱글톤?
         JPAQueryFactory query = new JPAQueryFactory(em);
 
         Board fetchedBoard = query.select(board)
@@ -133,6 +133,12 @@ public class BoardRepository {
                 .fetch();
     }
 
+    /**
+     * 검색조건 동적 쿼리
+     *
+     * @param toDate
+     * @return
+     */
     private BooleanExpression toDateBefore(Date toDate) {
 
         if(toDate == null) {
@@ -190,24 +196,5 @@ public class BoardRepository {
                         toDateBefore(boardSearchRequest.getToDate())
                 )
                 .fetchOne();
-    }
-
-    public Board findByGuestPassword(String guestPassword) {
-
-        JPAQueryFactory query = new JPAQueryFactory(em);
-
-        return query.select(board)
-                .from(board)
-                .where(guestPasswordEq(guestPassword))
-                .fetchOne();
-    }
-
-    private BooleanExpression guestPasswordEq(String guestPassword) {
-
-        if (guestPassword == null || guestPassword.equals("")) {
-            return null;
-        }
-
-        return board.guestPassword.eq(guestPassword);
     }
 }

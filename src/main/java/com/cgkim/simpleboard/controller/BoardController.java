@@ -34,6 +34,8 @@ import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+//TODO: repository 인터페이스로 바꾸기
+
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -166,7 +168,7 @@ public class BoardController {
 
         boardService.checkOwner(boardId, username, guestPasswordCheckRequest);
 
-        List<AttachDto> attachInsertList = fileHandler.createFiles(fileSaveRequest.getMultipartFiles());//첨부파일 삽입 리스트
+        List<AttachDto> attachInsertList = fileHandler.createFiles(fileSaveRequest.getMultipartFiles());
         List<AttachDto> attachDeleteList = boardService.updateBoard(boardId, boardUpdateRequest, attachInsertList, attachDeleteRequest);
 
         fileHandler.deleteFiles(attachDeleteList); //물리적 파일 삭제

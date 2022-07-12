@@ -2,6 +2,7 @@ package com.cgkim.simpleboard.dto.board;
 
 import com.cgkim.simpleboard.domain.Attach;
 import com.cgkim.simpleboard.domain.Board;
+import com.cgkim.simpleboard.domain.Comment;
 import com.cgkim.simpleboard.dto.attach.AttachDto;
 import com.cgkim.simpleboard.dto.comment.CommentListResponse;
 import com.cgkim.simpleboard.util.AttachURIProvider;
@@ -98,9 +99,21 @@ public class BoardDetailResponse {
         AttachURIProvider.setImageURIsOf(attachDtoList);
         boardDetailResponse.setAttachList(attachDtoList);
 
-        //TODO: setCommentDtoList ?
+        List<CommentListResponse> commentListResponses = toCommentDTOs(board);
+        boardDetailResponse.setCommentList(commentListResponses);
         
         return boardDetailResponse;
+    }
+
+    private static List<CommentListResponse> toCommentDTOs(Board board) {
+
+        List<CommentListResponse> commentListResponses = new ArrayList<>();
+
+        for (Comment comment : board.getComments()) {
+            commentListResponses.add(CommentListResponse.from(comment));
+        }
+
+        return commentListResponses;
     }
 
     private static List<AttachDto> toAttachDTOs(List<Attach> attaches, Long boardId) {
