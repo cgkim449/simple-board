@@ -66,7 +66,7 @@ public class Board {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Attach> attaches = new ArrayList<>();
 
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE)
     private final List<Comment> comments = new ArrayList<>();
 
     @Column(length = 100, nullable = false)

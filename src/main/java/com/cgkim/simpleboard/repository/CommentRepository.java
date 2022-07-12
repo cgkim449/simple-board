@@ -1,5 +1,6 @@
 package com.cgkim.simpleboard.repository;
 
+import com.cgkim.simpleboard.domain.Board;
 import com.cgkim.simpleboard.domain.Comment;
 import com.cgkim.simpleboard.exception.BoardNotFoundException;
 import com.cgkim.simpleboard.exception.CommentNotFoundException;
@@ -19,12 +20,17 @@ import static com.cgkim.simpleboard.domain.QCategory.category;
 import static com.cgkim.simpleboard.domain.QComment.comment;
 import static com.cgkim.simpleboard.domain.QMember.member;
 
-@RequiredArgsConstructor
 @Repository
 public class CommentRepository {
 
     private final EntityManager em;
 
+    private final JPAQueryFactory jpaQueryFactory;
+
+    public CommentRepository(EntityManager em) {
+        this.em = em;
+        this.jpaQueryFactory = new JPAQueryFactory(em);
+    }
     /**
      * 댓글 저장
      *
@@ -47,9 +53,7 @@ public class CommentRepository {
      */
     public Comment findByCommentId(Long commentId) {
 
-        JPAQueryFactory query = new JPAQueryFactory(em);
-
-        Comment fetchedComment = query.select(comment)
+        Comment fetchedComment = jpaQueryFactory.select(comment)
                 .from(comment)
                 .where(commentIdEq(commentId))
                 .fetchOne();
@@ -70,22 +74,20 @@ public class CommentRepository {
         return comment.commentId.eq(commentId);
     }
 
-    public void deleteByCommentId(Long commentId) {
+    public Comment deleteByCommentId(Long commentId) {
         Comment comment = findByCommentId(commentId);
 
         if (comment == null) {
             throw new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND);
         }
 
-        //TODO: 삭제 전에 영속성 컨텍스트에 있는 Board 에 comment 삭제?
         em.remove(comment);
+        return comment;
     }
 
     public List<Comment> findAllByBoardId(Long boardId) {
 
-        JPAQueryFactory query = new JPAQueryFactory(em);
-
-        return query.select(comment)
+        return jpaQueryFactory.select(comment)
                 .from(comment)
                 .leftJoin(comment.member, member)
                 .leftJoin(comment.admin, admin)

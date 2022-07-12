@@ -228,6 +228,7 @@ public class BoardService {
         board.updateHasAttach(); //첨부파일 유무 업데이트
         board.updateThumbnailUri(); //썸네일 URI 업데이트
 
+        //TODO: attachDto
         return null;
     }
 

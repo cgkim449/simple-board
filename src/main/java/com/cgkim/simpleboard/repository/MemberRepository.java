@@ -13,11 +13,17 @@ import javax.persistence.EntityManager;
 import static com.cgkim.simpleboard.domain.QMember.member;
 
 
-@RequiredArgsConstructor
 @Repository
 public class MemberRepository {
 
     private final EntityManager em;
+
+    private final JPAQueryFactory jpaQueryFactory;
+
+    public MemberRepository(EntityManager em) {
+        this.em = em;
+        this.jpaQueryFactory = new JPAQueryFactory(em);
+    }
 
     public void save(Member member) {
 
@@ -30,9 +36,7 @@ public class MemberRepository {
 
     public Long countByNickname(String nickname) {
 
-        JPAQueryFactory query = new JPAQueryFactory(em);
-
-        return query.select(member.count())
+        return jpaQueryFactory.select(member.count())
                 .from(member)
                 .where(nicknameEq(nickname))
                 .fetchOne();
@@ -49,9 +53,7 @@ public class MemberRepository {
 
     public Long countByUsername(String username) {
 
-        JPAQueryFactory query = new JPAQueryFactory(em);
-
-        return query.select(member.count())
+        return jpaQueryFactory.select(member.count())
                 .from(member)
                 .where(usernameEq(username))
                 .fetchOne();
@@ -68,9 +70,7 @@ public class MemberRepository {
 
     public Member findByUsername(String username) {
 
-        JPAQueryFactory query = new JPAQueryFactory(em);
-
-        Member fetchedMember = query.select(member)
+        Member fetchedMember = jpaQueryFactory.select(member)
                 .from(member)
                 .where(usernameEq(username))
                 .fetchOne();

@@ -83,8 +83,6 @@ export default {
             this.drawer = false
         },
     },
-
-    created() {}
 }
 </script>
 

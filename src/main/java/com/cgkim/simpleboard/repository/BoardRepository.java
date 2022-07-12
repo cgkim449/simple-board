@@ -8,7 +8,6 @@ import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
 import com.cgkim.simpleboard.dto.board.BoardSearchRequest;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -21,11 +20,17 @@ import static com.cgkim.simpleboard.domain.QBoard.board;
 import static com.cgkim.simpleboard.domain.QCategory.category;
 import static com.cgkim.simpleboard.domain.QMember.member;
 
-@RequiredArgsConstructor
 @Repository
 public class BoardRepository {
 
     private final EntityManager em;
+
+    private final JPAQueryFactory jpaQueryFactory;
+
+    public BoardRepository(EntityManager em) {
+        this.em = em;
+        this.jpaQueryFactory = new JPAQueryFactory(em);
+    }
 
     /**
      * 게시물 저장
@@ -48,10 +53,8 @@ public class BoardRepository {
      * @return
      */
     public Board findById(Long boardId) {
-        //TODO: query 싱글톤?
-        JPAQueryFactory query = new JPAQueryFactory(em);
 
-        Board fetchedBoard = query.select(board)
+        Board fetchedBoard = jpaQueryFactory.select(board)
                 .from(board)
                 .leftJoin(board.member, member)
                 .leftJoin(board.admin, admin)
@@ -117,9 +120,7 @@ public class BoardRepository {
      */
     public List<Board> findAll(BoardSearchRequest boardSearchRequest) {
 
-        JPAQueryFactory query = new JPAQueryFactory(em);
-
-        return query.select(board)
+        return jpaQueryFactory.select(board)
                 .from(board)
                 .join(board.category, category)
                 .where(categoryEq(boardSearchRequest.getCategoryId()),
@@ -159,7 +160,7 @@ public class BoardRepository {
 
     private BooleanExpression keywordLike(String keyword) {
 
-        if (keyword == null) {
+        if (keyword == null || keyword.equals("")) {
             return null;
         }
 
@@ -185,9 +186,7 @@ public class BoardRepository {
      */
     public Long count(BoardSearchRequest boardSearchRequest) {
 
-        JPAQueryFactory query = new JPAQueryFactory(em);
-
-        return query.select(board.count())
+        return jpaQueryFactory.select(board.count())
                 .from(board)
                 .join(board.category, category)
                 .where(categoryEq(boardSearchRequest.getCategoryId()),
