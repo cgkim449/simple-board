@@ -1,5 +1,6 @@
 package com.cgkim.simpleboard.domain;
 
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,8 +20,15 @@ import java.time.LocalDateTime;
 
 import static javax.persistence.FetchType.LAZY;
 
+/**
+ * 테이블 매핑
+ *  - Attach 테이블
+ *
+ * 연관관계 매핑
+ *  - 다대일 : Board
+ */
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 @Entity
 public class Attach {
@@ -81,6 +89,12 @@ public class Attach {
         this.updateDate = updateDate;
     }
 
+    /**
+     * Attach 생성
+     *
+     * @param board
+     * @return
+     */
     public static Attach createAttach(Board board) {
         Attach attach = new Attach();
         attach.setBoard(board);
@@ -90,6 +104,11 @@ public class Attach {
         return attach;
     }
 
+    /**
+     * 양방향 참조값 넣어줌
+     *
+     * @param board
+     */
     public void setBoard(Board board) {
 
         if (this.board != null) {

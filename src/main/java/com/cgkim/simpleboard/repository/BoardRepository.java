@@ -8,6 +8,7 @@ import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
 import com.cgkim.simpleboard.dto.board.BoardSearchRequest;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -20,17 +21,19 @@ import static com.cgkim.simpleboard.domain.QBoard.board;
 import static com.cgkim.simpleboard.domain.QCategory.category;
 import static com.cgkim.simpleboard.domain.QMember.member;
 
+/**
+ * BoardRepository
+ * - db 에 접근하는 영역
+ */
+//TODO: JpaRepository 인터페이스 사용
+//TODO: QueryDsl 사용하는 메서드는 따로 클래스 분리
+@RequiredArgsConstructor
 @Repository
 public class BoardRepository {
 
     private final EntityManager em;
 
     private final JPAQueryFactory jpaQueryFactory;
-
-    public BoardRepository(EntityManager em) {
-        this.em = em;
-        this.jpaQueryFactory = new JPAQueryFactory(em);
-    }
 
     /**
      * 게시물 저장
@@ -58,7 +61,7 @@ public class BoardRepository {
                 .from(board)
                 .leftJoin(board.member, member)
                 .leftJoin(board.admin, admin)
-                .where(boardIdEq(boardId))
+                .where(board.boardId.eq(boardId))
                 .fetchOne();
 
         if(fetchedBoard == null) {
@@ -66,15 +69,6 @@ public class BoardRepository {
         }
 
         return fetchedBoard;
-    }
-
-    private BooleanExpression boardIdEq(Long boardId) {
-
-        if (boardId == null || boardId == 0) {
-            return null;
-        }
-
-        return board.boardId.eq(boardId);
     }
 
     /**
@@ -94,7 +88,9 @@ public class BoardRepository {
 
         List<Attach> attaches = board.getAttaches();
         List<AttachDto> attachDTOs = new ArrayList<>();
+
         for (Attach attach : attaches) {
+
             attachDTOs.add(AttachDto.builder()
                     .attachId(attach.getAttachId())
                     .boardId(attach.getBoard().getBoardId())
@@ -123,7 +119,8 @@ public class BoardRepository {
         return jpaQueryFactory.select(board)
                 .from(board)
                 .join(board.category, category)
-                .where(categoryEq(boardSearchRequest.getCategoryId()),
+                .where(
+                        categoryEq(boardSearchRequest.getCategoryId()),
                         keywordLike(boardSearchRequest.getKeyword()),
                         fromDateAfter(boardSearchRequest.getFromDate()),
                         toDateBefore(boardSearchRequest.getToDate())

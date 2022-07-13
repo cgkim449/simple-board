@@ -29,8 +29,13 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * BoardService
+ * - 비즈니스 로직은 전부 도메인에 있음
+ * - Service 는 트랜잭션만 관리함
+ */
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional(readOnly = true) //동기화 생략. 데이터를 조회만 하는 트랜잭션에서는 동기화할 필요가 없으므로.
 @Service
 public class BoardService {
 
@@ -228,11 +233,18 @@ public class BoardService {
         board.updateHasAttach(); //첨부파일 유무 업데이트
         board.updateThumbnailUri(); //썸네일 URI 업데이트
 
-        //TODO: attachDto
+        //TODO: attachDto return
         return null;
     }
 
-
+    /**
+     * 게시물 소유권 인증
+     *
+     * @param boardId
+     * @param username
+     * @param guestPasswordCheckRequest
+     * @throws NoSuchAlgorithmException
+     */
     public void checkOwner(Long boardId, String username, GuestPasswordCheckRequest guestPasswordCheckRequest) throws NoSuchAlgorithmException {
 
         Board board = boardRepository.findById(boardId);
@@ -257,8 +269,8 @@ public class BoardService {
                 throw new NoAuthorizationException(ErrorCode.NO_AUTHORIZATION);
             }
 
-            //TODO: 동일 비교 공부 memberId 가 같으면 같은 객체이다
-            if (board.getMember() != member) { //검증
+            //getMemberId() 안해도됨
+            if (board.getMember() != member) {
                 throw new NoAuthorizationException(ErrorCode.NO_AUTHORIZATION);
             }
         }

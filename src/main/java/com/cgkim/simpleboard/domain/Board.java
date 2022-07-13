@@ -2,6 +2,7 @@ package com.cgkim.simpleboard.domain;
 
 import com.cgkim.simpleboard.util.AttachURIProvider;
 import com.cgkim.simpleboard.util.SHA256PasswordEncoder;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,8 +29,15 @@ import java.util.Objects;
 
 import static javax.persistence.FetchType.LAZY;
 
+/**
+ * 테이블 매핑
+ *  - Board 테이블
+ *
+ * 연관관계 매핑
+ *  - 다대일 : Category, Member, Admin
+ */
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 @Entity
 public class Board {
@@ -38,13 +46,8 @@ public class Board {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long boardId;
 
-    /**
-     * nullable =  true 면 아우터 조인.
-     * 이너 조인이 더 성능과 최적화면에서 좋다. 근데 lazy 에서도 되나
-     */
-    //TODO: lazy eager 정리. 자주 함께 사용되면 eager. 가끔 사용되면 lazy?. 처음에 한번에 다가져오는게 더 좋을 수도 잇음
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "category_id")
     private Category category;
 
     @ManyToOne(fetch = LAZY)
@@ -58,10 +61,15 @@ public class Board {
     /**
      * OneToMany : 단순히 객체 그래프 탐색 및 JPQL 사용이 목적
      *
-     * CascadeType.ALL : Board 를 persist/update 할때 자동으로 함께 persist/update 된다 (단, delete 는 안됨)
-     *  - Attach 를 참조하는 엔티티가 Board 밖에 없고, Board 와 Attach 가 persist 되는 시점이 갖기 때문에 사용
+     * CascadeType.ALL
+     *  - Board 를 db 에 삽입, 삭제 할때 Attach 도 함께 db 에 삽입, 삭제 된다
+     *      - 단 Attach 리스트에서 Attach 를 제거한다고 Attach 가 db 에서 삭제되지는 않는다. 단순히 참조를 제거한거지 Attach 자체를 제거한 건 아니기 때문이다.
+     *          - orphanRemoval 을 이용하면 가능해진다
+     *  - Attach 를 참조하는 객체가 Board 밖에 없어서 안전하다
+     *  - Board 와 Attach 의 생명주기가 같기 때문에 편리하다
      *
-     *  orphanRemoval = true : 고아 객체 db 삭제
+     * orphanRemoval = true
+     *  - 컬렉션에서 제거하면 db 에도 반영된다
      */
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Attach> attaches = new ArrayList<>();
@@ -85,6 +93,7 @@ public class Board {
 
     private String thumbnailUri;
 
+    //TODO: 상속
     @CreatedDate
     private Date registerDate;
 
@@ -122,14 +131,13 @@ public class Board {
         this.updateDate = updateDate;
     }
 
-    //TODO: 기본 생성자를 protected 로해서. 왜 protected?
     /**
-     * - 역할
-     *   - Board 엔티티 생성
-     * - 목적
-     *   - 일관된 엔티티 생성
-     *   - 엔티티 생성 로직 변경 시 여기만 변경하면 됨
-     *   - 기본생성자는 사용 못하게 protected 로
+     * 역할
+     *  - Board 엔티티 생성 (익명 게시물)
+     *
+     * 목적
+     *  - 엔티티 생성 로직을 한 곳에서 관리
+     *      - 다른 생성자는 호출 못하게 private 나 protected 로 변경
      *
      * @param category
      * @param insertAttaches
@@ -167,6 +175,16 @@ public class Board {
         return board;
     }
 
+    /**
+     * Board 엔티티 생성 (회원 게시물)
+     *
+     * @param member
+     * @param category
+     * @param insertAttaches
+     * @param title
+     * @param content
+     * @return
+     */
     public static Board createBoard(Member member,
                                     Category category,
                                     List<Attach> insertAttaches,
@@ -192,19 +210,33 @@ public class Board {
         return board;
     }
 
+    /**
+     * 역할
+     *  - Board 에 Member 넣어주고, Member 에도 Board 넣어준다
+     *
+     * 목적
+     *  - 누락 방지
+     *
+     * @param member
+     */
     public void setMember(Member member) {
 
-        if (this.member != null) {
+        if (this.member != null) { //기존에 참조 값이 있다면 제거한다
             this.member.getBoards().remove(this);
         }
 
         this.member = member;
 
-        if(!member.getBoards().contains(this)) {
+        if(!member.getBoards().contains(this)) { //재귀호출 방지
             member.getBoards().add(this);
         }
     }
 
+    /**
+     * 위와 같음
+     *
+     * @param category
+     */
     public void setCategory(Category category) {
 
         if (this.category != null) {
@@ -218,6 +250,11 @@ public class Board {
         }
     }
 
+    /**
+     * 위와 같음
+     *
+     * @param attach
+     */
     public void addAttach(Attach attach) {
         attaches.add(attach);
         attach.setBoard(this);
@@ -235,6 +272,7 @@ public class Board {
      * @param attachDeleteRequest
      */
     public void update(String title, String content, List<Attach> insertAttaches, Long[] attachDeleteRequest) {
+
         this.title = title;
         this.content = content;
 

@@ -1,6 +1,7 @@
 package com.cgkim.simpleboard.domain;
 
 import com.cgkim.simpleboard.util.SHA256PasswordEncoder;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,9 +21,15 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * 테이블 매핑
+ *  - Member 테이블
+ *
+ * 연관관계 매핑
+ *  - 없음
+ */
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 @Entity
 public class Member {
@@ -73,6 +80,15 @@ public class Member {
         this.updateDate = updateDate;
     }
 
+    /**
+     * Member 생성
+     *
+     * @param username
+     * @param nickname
+     * @param password
+     * @return
+     * @throws NoSuchAlgorithmException
+     */
     public static Member createMember(String username, String nickname, String password) throws NoSuchAlgorithmException {
 
         return Member.builder()
@@ -82,6 +98,13 @@ public class Member {
                 .build();
     }
 
+    /**
+     * 회원 비밀번호 검증
+     *
+     * @param password
+     * @return
+     * @throws NoSuchAlgorithmException
+     */
     public boolean isPasswordMismatch(String password) throws NoSuchAlgorithmException {
         return !this.password.equals(SHA256PasswordEncoder.getHash(password));
     }

@@ -122,18 +122,26 @@ public class CommentService {
         return commentListResponses;
     }
 
+    /**
+     * 댓글 소유권 인증
+     *
+     * @param commentId
+     * @param username
+     * @param guestPasswordCheckRequest
+     * @throws NoSuchAlgorithmException
+     */
     public void checkOwner(Long commentId, String username, GuestPasswordCheckRequest guestPasswordCheckRequest) throws NoSuchAlgorithmException {
         Comment comment = commentRepository.findByCommentId(commentId);
 
-        if (comment.getAdmin() != null) { //관리자 글이면
+        if (comment.getAdmin() != null) {
             throw new NoAuthorizationException(ErrorCode.NO_AUTHORIZATION);
 
-        } else if (comment.getGuestNickname() != null) { //익명 글이면
+        } else if (comment.getGuestNickname() != null) {
 
-            validateGuestPassword(guestPasswordCheckRequest); //비밀번호 유효성 검증
-            checkGuestPassword(commentId, guestPasswordCheckRequest); //비밀번호 체크
+            validateGuestPassword(guestPasswordCheckRequest);
+            checkGuestPassword(commentId, guestPasswordCheckRequest);
 
-        } else if (comment.getMember() != null) { //회원 글이면
+        } else if (comment.getMember() != null) {
 
             if (username == null) {
                 throw new LoginRequiredException(ErrorCode.LOGIN_REQUIRED);
@@ -145,8 +153,7 @@ public class CommentService {
                 throw new NoAuthorizationException(ErrorCode.NO_AUTHORIZATION);
             }
 
-            //TODO: 동일 비교 공부 memberId 가 같으면 같은 객체이다
-            if (comment.getMember() != member) { //검증
+            if (comment.getMember() != member) {
                 throw new NoAuthorizationException(ErrorCode.NO_AUTHORIZATION);
             }
         }

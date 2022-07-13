@@ -1,6 +1,7 @@
 package com.cgkim.simpleboard.domain;
 
 import com.cgkim.simpleboard.util.SHA256PasswordEncoder;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,8 +24,15 @@ import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
 
+/**
+ * 테이블 매핑
+ *  - Comment 테이블
+ *
+ * 연관관계 매핑
+ *  - 다대일 : Board, Member, Admin
+ */
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 @Entity
 public class Comment {
@@ -80,6 +88,16 @@ public class Comment {
         this.updateDate = updateDate;
     }
 
+    /**
+     * Comment 생성 (익명 댓글)
+     *
+     * @param board
+     * @param content
+     * @param guestNickname
+     * @param guestPassword
+     * @return
+     * @throws NoSuchAlgorithmException
+     */
     public static Comment createComment(Board board,
                                         String content,
                                         String guestNickname,
@@ -97,10 +115,18 @@ public class Comment {
         return comment;
     }
 
+    /**
+     * Comment 생성 (회원 댓글)
+     *
+     * @param board
+     * @param member
+     * @param content
+     * @return
+     */
     public static Comment createComment(Board board,
                                         Member member,
                                         String content
-    ) throws NoSuchAlgorithmException {
+    ) {
 
         Comment comment = Comment.builder()
                 .content(content)
@@ -112,6 +138,11 @@ public class Comment {
         return comment;
     }
 
+    /**
+     * 양방향 참조값 넣어줌
+     *
+     * @param board
+     */
     public void setBoard(Board board) {
 
         if (this.board != null) {
@@ -125,6 +156,11 @@ public class Comment {
         }
     }
 
+    /**
+     * 위와 같음
+     *
+     * @param member
+     */
     public void setMember(Member member) {
 
         if (this.member != null) {
@@ -139,7 +175,7 @@ public class Comment {
     }
 
     /**
-     * 익명 글 비밀번호 검증
+     * 익명 댓글 비밀번호 검증
      *
      * @param guestPassword
      * @return

@@ -1,13 +1,10 @@
 package com.cgkim.simpleboard.repository;
 
-import com.cgkim.simpleboard.domain.Board;
 import com.cgkim.simpleboard.domain.Comment;
-import com.cgkim.simpleboard.exception.BoardNotFoundException;
 import com.cgkim.simpleboard.exception.CommentNotFoundException;
 import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -15,8 +12,6 @@ import javax.persistence.EntityManager;
 import java.util.List;
 
 import static com.cgkim.simpleboard.domain.QAdmin.admin;
-import static com.cgkim.simpleboard.domain.QBoard.board;
-import static com.cgkim.simpleboard.domain.QCategory.category;
 import static com.cgkim.simpleboard.domain.QComment.comment;
 import static com.cgkim.simpleboard.domain.QMember.member;
 
