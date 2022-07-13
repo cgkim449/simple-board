@@ -5,7 +5,6 @@ import com.cgkim.simpleboard.exception.MemberNotFoundException;
 import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -16,21 +15,21 @@ import static com.cgkim.simpleboard.domain.QMember.member;
 @Repository
 public class MemberRepository {
 
-    private final EntityManager em;
+    private final EntityManager entityManager;
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public MemberRepository(EntityManager em) {
-        this.em = em;
-        this.jpaQueryFactory = new JPAQueryFactory(em);
+    public MemberRepository(EntityManager entityManager) {
+        this.entityManager = entityManager;
+        this.jpaQueryFactory = new JPAQueryFactory(entityManager);
     }
 
     public void save(Member member) {
 
         if (member.getMemberId() == null) {
-            em.persist(member);
+            entityManager.persist(member);
         } else {
-            em.merge(member);
+            entityManager.merge(member);
         }
     }
 

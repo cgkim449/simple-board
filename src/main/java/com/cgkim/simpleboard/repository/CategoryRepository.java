@@ -1,7 +1,6 @@
 package com.cgkim.simpleboard.repository;
 
 import com.cgkim.simpleboard.domain.Category;
-import com.cgkim.simpleboard.exception.AttachNotFoundException;
 import com.cgkim.simpleboard.exception.CategoryNotFoundException;
 import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,7 @@ import javax.persistence.EntityManager;
 @Repository
 public class CategoryRepository {
 
-    private final EntityManager em;
+    private final EntityManager entityManager;
 
     /**
      * categoryId 로 게시물 조회
@@ -23,7 +22,7 @@ public class CategoryRepository {
      */
     public Category findByCategoryId(Long categoryId) {
 
-        Category category = em.find(Category.class, categoryId);
+        Category category = entityManager.find(Category.class, categoryId);
 
         if (category == null) {
             throw new CategoryNotFoundException(ErrorCode.CATEGORY_NOT_FOUND);

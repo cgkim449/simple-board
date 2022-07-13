@@ -14,17 +14,20 @@ import java.util.List;
 @Getter
 public class BoardSaveRequest {
 
-    private final Long categoryId;
+    private Long categoryId;
 
-    private final String title;
+    private  String title;
 
-    private final String content;
+    private  String content;
 
-    private final String guestNickname;
+    private  String guestNickname;
 
-    private final String guestPassword;
+    private  String guestPassword;
 
-    private final String guestPasswordConfirm;
+    private  String guestPasswordConfirm;
+
+    private BoardSaveRequest() {
+    }
 
     @Builder
     public BoardSaveRequest(Long categoryId, String title, String content, String guestNickname, String guestPassword, String guestPasswordConfirm) {

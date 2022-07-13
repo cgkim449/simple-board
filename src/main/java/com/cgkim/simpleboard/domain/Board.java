@@ -20,6 +20,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,22 +32,24 @@ import static javax.persistence.FetchType.LAZY;
 
 /**
  * 테이블 매핑
- *  - Board 테이블
+ * - Board 테이블
  *
  * 연관관계 매핑
- *  - 다대일 : Category, Member, Admin
+ * - 다대일 : Category, Member, Admin
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 @Entity
 public class Board {
-
+    //TODO: 서브쿼리 이용해서 게시물 리스트 조회 할때 댓글 개수 표시
+    //TODO: 쿼리 모아놓고 10개씩 쿼리 날리는 방법
+    //TODO: 카테고리, 보드 다대다로 만들기
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long boardId;
 
-    @ManyToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
 
@@ -62,14 +65,17 @@ public class Board {
      * OneToMany : 단순히 객체 그래프 탐색 및 JPQL 사용이 목적
      *
      * CascadeType.ALL
-     *  - Board 를 db 에 삽입, 삭제 할때 Attach 도 함께 db 에 삽입, 삭제 된다
-     *      - 단 Attach 리스트에서 Attach 를 제거한다고 Attach 가 db 에서 삭제되지는 않는다. 단순히 참조를 제거한거지 Attach 자체를 제거한 건 아니기 때문이다.
-     *          - orphanRemoval 을 이용하면 가능해진다
-     *  - Attach 를 참조하는 객체가 Board 밖에 없어서 안전하다
-     *  - Board 와 Attach 의 생명주기가 같기 때문에 편리하다
+     * - Attach 를 참조하는 객체가 Board 밖에 없어서 안전하다
+     * - Board 와 Attach 의 생명주기가 같기 때문에 편리하다
+     * - Board 를 영속화, 비영속화 할때 Attach 도 함께 영속화, 비영속화 된다
+     * - 단 Attach 리스트에서 Attach 를 제거한다고 Attach 가 비영속화되지는 않는다.
+     * - orphanRemoval 을 이용하면 가능해진다
      *
      * orphanRemoval = true
-     *  - 컬렉션에서 제거하면 db 에도 반영된다
+     * - 컬렉션에서 제거하면 비영속화된다
+     *
+     * new ArrayList() 로 필드에서 초기화 하는 이유
+     * - 엔티티를 영속화할때 컬렉션은
      */
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Attach> attaches = new ArrayList<>();
@@ -102,18 +108,18 @@ public class Board {
 
     @Builder
     private Board(Long boardId,
-                 Category category,
-                 Member member,
-                 Admin admin,
-                 String title,
-                 String content,
-                 String guestNickname,
-                 String guestPassword,
-                 Integer viewCount,
-                 Boolean hasAttach,
-                 String thumbnailUri,
-                 Date registerDate,
-                 Date updateDate
+                  Category category,
+                  Member member,
+                  Admin admin,
+                  String title,
+                  String content,
+                  String guestNickname,
+                  String guestPassword,
+                  Integer viewCount,
+                  Boolean hasAttach,
+                  String thumbnailUri,
+                  Date registerDate,
+                  Date updateDate
     ) {
 
         this.boardId = boardId;
@@ -133,11 +139,11 @@ public class Board {
 
     /**
      * 역할
-     *  - Board 엔티티 생성 (익명 게시물)
+     * - Board 엔티티 생성 (익명 게시물)
      *
      * 목적
-     *  - 엔티티 생성 로직을 한 곳에서 관리
-     *      - 다른 생성자는 호출 못하게 private 나 protected 로 변경
+     * - 엔티티 생성 로직을 한 곳에서 관리
+     * - 다른 생성자는 호출 못하게 private 나 protected 로 변경
      *
      * @param category
      * @param insertAttaches
@@ -212,10 +218,10 @@ public class Board {
 
     /**
      * 역할
-     *  - Board 에 Member 넣어주고, Member 에도 Board 넣어준다
+     * - Board 에 Member 넣어주고, Member 에도 Board 넣어준다
      *
      * 목적
-     *  - 누락 방지
+     * - 둘 중에 하나가 누락되는 걸 방지하기 위해 메서드로 묶음
      *
      * @param member
      */
@@ -227,7 +233,7 @@ public class Board {
 
         this.member = member;
 
-        if(!member.getBoards().contains(this)) { //재귀호출 방지
+        if (!member.getBoards().contains(this)) { //재귀호출 방지
             member.getBoards().add(this);
         }
     }
@@ -245,7 +251,7 @@ public class Board {
 
         this.category = category;
 
-        if(!category.getBoards().contains(this)) {
+        if (!category.getBoards().contains(this)) {
             category.getBoards().add(this);
         }
     }
@@ -281,6 +287,7 @@ public class Board {
         //TODO: 동시성 문제
         for (Long attachId : attachDeleteRequest) {
             while (iterator.hasNext()) {
+
                 Attach attach = iterator.next();
 
                 if (Objects.equals(attach.getAttachId(), attachId)) {

@@ -124,7 +124,6 @@ public class BoardController {
         memberService.getMemberByUsername(username);
 
         List<AttachDto> attachInsertList = fileHandler.createFiles(fileSaveRequest.getMultipartFiles()); //물리적 파일 생성
-
         Long boardId = boardService.writeMemberBoard(username, boardSaveRequest, attachInsertList); //글 작성
 
         return ResponseEntity.created(URI.create("/boards/" + boardId)).body(new SuccessResponse());

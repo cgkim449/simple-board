@@ -95,12 +95,10 @@ public class Attach {
      * @param board
      * @return
      */
+    //TODO: 다시해야됨
     public static Attach createAttach(Board board) {
         Attach attach = new Attach();
         attach.setBoard(board);
-
-        //TODO: attach 에 넣을 것들 set 하거나 update 메서드 만들어서 하자
-
         return attach;
     }
 

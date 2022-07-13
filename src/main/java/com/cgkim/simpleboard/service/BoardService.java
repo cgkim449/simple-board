@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * BoardService
@@ -249,15 +250,15 @@ public class BoardService {
 
         Board board = boardRepository.findById(boardId);
 
-        if (board.getAdmin() != null) { //관리자 글이면
+        if (board.getAdmin() != null) {
             throw new NoAuthorizationException(ErrorCode.NO_AUTHORIZATION);
 
-        } else if (board.getGuestNickname() != null) { //익명 글이면
+        } else if (board.getGuestNickname() != null) {
 
-            validateGuestPassword(guestPasswordCheckRequest); //비밀번호 유효성 검증
-            checkGuestPassword(boardId, guestPasswordCheckRequest); //비밀번호 체크
+            validateGuestPassword(guestPasswordCheckRequest);
+            checkGuestPassword(boardId, guestPasswordCheckRequest);
 
-        } else if (board.getMember() != null) { //회원 글이면
+        } else if (board.getMember() != null) {
 
             if (username == null) {
                 throw new LoginRequiredException(ErrorCode.LOGIN_REQUIRED);
@@ -270,7 +271,7 @@ public class BoardService {
             }
 
             //getMemberId() 안해도됨
-            if (board.getMember() != member) {
+            if (Objects.equals(board.getMember().getMemberId(), member.getMemberId())) {
                 throw new NoAuthorizationException(ErrorCode.NO_AUTHORIZATION);
             }
         }

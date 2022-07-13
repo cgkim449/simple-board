@@ -18,13 +18,13 @@ import static com.cgkim.simpleboard.domain.QMember.member;
 @Repository
 public class CommentRepository {
 
-    private final EntityManager em;
+    private final EntityManager entityManager;
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public CommentRepository(EntityManager em) {
-        this.em = em;
-        this.jpaQueryFactory = new JPAQueryFactory(em);
+    public CommentRepository(EntityManager entityManager) {
+        this.entityManager = entityManager;
+        this.jpaQueryFactory = new JPAQueryFactory(entityManager);
     }
     /**
      * 댓글 저장
@@ -34,9 +34,9 @@ public class CommentRepository {
     public void save(Comment comment) {
 
         if (comment.getCommentId() == null) {
-            em.persist(comment);
+            entityManager.persist(comment);
         } else {
-            em.merge(comment);
+            entityManager.merge(comment);
         }
     }
 
@@ -76,7 +76,7 @@ public class CommentRepository {
             throw new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND);
         }
 
-        em.remove(comment);
+        entityManager.remove(comment);
         return comment;
     }
 

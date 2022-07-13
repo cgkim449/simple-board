@@ -31,7 +31,7 @@ import static com.cgkim.simpleboard.domain.QMember.member;
 @Repository
 public class BoardRepository {
 
-    private final EntityManager em;
+    private final EntityManager entityManager;
 
     private final JPAQueryFactory jpaQueryFactory;
 
@@ -43,9 +43,9 @@ public class BoardRepository {
     public void save(Board board) {
 
         if (board.getBoardId() == null) {
-            em.persist(board);
+            entityManager.persist(board);
         } else {
-            em.merge(board);
+            entityManager.merge(board);
         }
     }
 
@@ -77,7 +77,6 @@ public class BoardRepository {
      * @param boardId
      * @return
      */
-    //TODO: 왜 삭제 한번에 다되는지 정리
     public List<AttachDto> deleteByBoardId(Long boardId) {
 
         Board board = findById(boardId);
@@ -103,7 +102,7 @@ public class BoardRepository {
                     .build());
         }
 
-        em.remove(board);
+        entityManager.remove(board);
 
         return attachDTOs;
     }
