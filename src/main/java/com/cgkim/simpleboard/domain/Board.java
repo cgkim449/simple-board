@@ -49,10 +49,6 @@ public class Board {
     private Long boardId;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "category_id")
-    private Category category;
-
-    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
@@ -77,10 +73,13 @@ public class Board {
      * - 엔티티를 영속화할때 컬렉션은
      */
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final List<BoardCategory> boardCategories = new ArrayList<>();
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Attach> attaches = new ArrayList<>();
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE)
     private final List<Comment> comments = new ArrayList<>();
+
 
     @Column(length = 100, nullable = false)
     private String title;
@@ -107,7 +106,6 @@ public class Board {
 
     @Builder
     private Board(Long boardId,
-                  Category category,
                   Member member,
                   Admin admin,
                   String title,
@@ -122,7 +120,6 @@ public class Board {
     ) {
 
         this.boardId = boardId;
-        this.category = category;
         this.member = member;
         this.admin = admin;
         this.title = title;
@@ -191,7 +188,7 @@ public class Board {
      * @return
      */
     public static Board createBoard(Member member,
-                                    Category category,
+                                    List<BoardCategory> boardCategories,
                                     List<Attach> insertAttaches,
                                     String title,
                                     String content
@@ -204,7 +201,12 @@ public class Board {
                 .build();
 
         board.setMember(member);
-        board.setCategory(category);
+
+        if (boardCategories != null) {
+            for (BoardCategory boardCategory : boardCategories) {
+                board.addBoardCategory(boardCategory);
+            }
+        }
 
         if (insertAttaches != null) {
             for (Attach attach : insertAttaches) {
@@ -239,21 +241,14 @@ public class Board {
 
     /**
      * 위와 같음
-     *
-     * @param category
+     * @param boardCategory
      */
-    public void setCategory(Category category) {
-
-        if (this.category != null) {
-            this.category.getBoards().remove(this);
-        }
-
-        this.category = category;
-
-        if (!category.getBoards().contains(this)) {
-            category.getBoards().add(this);
-        }
+    public void addBoardCategory(BoardCategory boardCategory) {
+        boardCategories.add(boardCategory);
+        boardCategory.setBoard(this);
     }
+
+
 
     /**
      * 위와 같음

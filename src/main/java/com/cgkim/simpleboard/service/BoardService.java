@@ -65,6 +65,7 @@ public class BoardService {
 
             //Category 엔티티 조회
             Category category = categoryRepository.findByCategoryId(boardSaveRequest.getCategoryId());
+            boardCategoryRepository.findByBoardId()
 
             //AttachDto -> Attach 엔티티
             List<Attach> insertAttaches = toAttaches(attachInsertList);
@@ -72,7 +73,7 @@ public class BoardService {
             //Board 엔티티 생성
             Board board = Board.createBoard(
                     member,
-                    category,
+                    boardCategories,
                     insertAttaches,
                     boardSaveRequest.getTitle(),
                     boardSaveRequest.getContent()
