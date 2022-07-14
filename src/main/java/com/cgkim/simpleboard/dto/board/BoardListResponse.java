@@ -3,6 +3,7 @@ package com.cgkim.simpleboard.dto.board;
 import com.cgkim.simpleboard.domain.Board;
 import com.cgkim.simpleboard.util.AttachURIProvider;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.querydsl.core.Tuple;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,6 +16,8 @@ import java.util.Date;
 public class BoardListResponse {
 
     private final Long boardId;
+
+    private final Long commentCount;
 
     private final String title;
 
@@ -41,8 +44,9 @@ public class BoardListResponse {
     private final String thumbnailUri;
 
     @Builder
-    public BoardListResponse(Long boardId, String title, int viewCount, Boolean hasAttach, Date registerDate, Date updateDate, Long categoryId, String categoryName, String guestNickname, String memberNickname, String adminNickname, String thumbnailUri) {
+    public BoardListResponse(Long boardId, Long commentCount, String title, int viewCount, Boolean hasAttach, Date registerDate, Date updateDate, Long categoryId, String categoryName, String guestNickname, String memberNickname, String adminNickname, String thumbnailUri) {
         this.boardId = boardId;
+        this.commentCount = commentCount;
         this.title = title;
         this.viewCount = viewCount;
         this.hasAttach = hasAttach;
@@ -56,9 +60,10 @@ public class BoardListResponse {
         this.thumbnailUri = thumbnailUri;
     }
 
-    public static BoardListResponse from(Board board) {
+    public static BoardListResponse from(Board board, Long commentCount) {
 
         return BoardListResponse.builder()
+                .commentCount(commentCount)
                 .boardId(board.getBoardId())
                 .categoryId(board.getCategory().getCategoryId())
                 .categoryName(board.getCategory().getName())

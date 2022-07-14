@@ -20,6 +20,7 @@ import com.cgkim.simpleboard.dto.board.BoardSaveRequest;
 import com.cgkim.simpleboard.dto.board.BoardSearchRequest;
 import com.cgkim.simpleboard.dto.board.BoardUpdateRequest;
 import com.cgkim.simpleboard.repository.MemberRepository;
+import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -180,21 +181,10 @@ public class BoardService {
      */
     public List<BoardListResponse> viewBoardList(BoardSearchRequest boardSearchRequest) {
 
-        List<Board> filteredBoards = boardRepository.findAll(boardSearchRequest);
-
-        return getBoardListResponsesFrom(filteredBoards);
+        return boardRepository.findAll(boardSearchRequest);
     }
 
-    private List<BoardListResponse> getBoardListResponsesFrom(List<Board> filteredBoards) {
 
-        List<BoardListResponse> boardListResponses = new ArrayList<>();
-
-        for (Board board : filteredBoards) {
-            boardListResponses.add(BoardListResponse.from(board));
-        }
-
-        return boardListResponses;
-    }
 
 
     /**

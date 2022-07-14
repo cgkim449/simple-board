@@ -42,8 +42,7 @@ import static javax.persistence.FetchType.LAZY;
 @EntityListeners(AuditingEntityListener.class)
 @Entity
 public class Board {
-    //TODO: 서브쿼리 이용해서 게시물 리스트 조회 할때 댓글 개수 표시
-    //TODO: 쿼리 모아놓고 10개씩 쿼리 날리는 방법
+
     //TODO: 카테고리, 보드 다대다로 만들기
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -2,11 +2,15 @@ package com.cgkim.simpleboard.repository;
 
 import com.cgkim.simpleboard.domain.Attach;
 import com.cgkim.simpleboard.domain.Board;
+import com.cgkim.simpleboard.domain.QComment;
 import com.cgkim.simpleboard.dto.attach.AttachDto;
+import com.cgkim.simpleboard.dto.board.BoardListResponse;
 import com.cgkim.simpleboard.exception.BoardNotFoundException;
 import com.cgkim.simpleboard.exception.errorcode.ErrorCode;
 import com.cgkim.simpleboard.dto.board.BoardSearchRequest;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -64,7 +68,7 @@ public class BoardRepository {
                 .where(board.boardId.eq(boardId))
                 .fetchOne();
 
-        if(fetchedBoard == null) {
+        if (fetchedBoard == null) {
             throw new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND);
         }
 
@@ -113,9 +117,18 @@ public class BoardRepository {
      * @param boardSearchRequest
      * @return
      */
-    public List<Board> findAll(BoardSearchRequest boardSearchRequest) {
+    public List<BoardListResponse> findAll(BoardSearchRequest boardSearchRequest) {
 
-        return jpaQueryFactory.select(board)
+        QComment commentSub = new QComment("commentSub");
+
+        List<Tuple> fetchedResult = jpaQueryFactory
+                .select(
+                        board,
+                        JPAExpressions
+                                .select(commentSub.commentId.count())
+                                .from(commentSub)
+                                .where(commentSub.board.boardId.eq(board.boardId))
+                )
                 .from(board)
                 .join(board.category, category)
                 .where(
@@ -128,6 +141,23 @@ public class BoardRepository {
                 .limit(boardSearchRequest.getLimit())
                 .orderBy(board.registerDate.desc(), board.boardId.desc())
                 .fetch();
+
+        return getBoardListResponsesFrom(fetchedResult);
+    }
+
+    private List<BoardListResponse> getBoardListResponsesFrom(List<Tuple> fetchedResult) {
+
+        List<BoardListResponse> boardListResponses = new ArrayList<>();
+
+        for (Tuple tuple : fetchedResult) {
+
+            Board board = tuple.get(0, Board.class);
+            Long commentCount = tuple.get(1, Long.class);
+
+            boardListResponses.add(BoardListResponse.from(board, commentCount));
+        }
+
+        return boardListResponses;
     }
 
     /**
@@ -138,7 +168,7 @@ public class BoardRepository {
      */
     private BooleanExpression toDateBefore(Date toDate) {
 
-        if(toDate == null) {
+        if (toDate == null) {
             return null;
         }
 
@@ -147,7 +177,7 @@ public class BoardRepository {
 
     private BooleanExpression fromDateAfter(Date fromDate) {
 
-        if(fromDate == null) {
+        if (fromDate == null) {
             return null;
         }
 
