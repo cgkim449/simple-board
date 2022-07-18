@@ -35,7 +35,7 @@ public class Category {
     private Long categoryId;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-    private final List<BoardCategory> boardCategories = new ArrayList<>();
+    private final List<Board> boards = new ArrayList<>();
 
     @Column(length = 100, nullable = false)
     private String name;

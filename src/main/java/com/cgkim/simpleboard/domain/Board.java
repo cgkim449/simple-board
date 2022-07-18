@@ -49,6 +49,10 @@ public class Board {
     private Long boardId;
 
     @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
@@ -177,6 +181,8 @@ public class Board {
         return board;
     }
 
+
+
     /**
      * Board 엔티티 생성 (회원 게시물)
      *
@@ -188,7 +194,7 @@ public class Board {
      * @return
      */
     public static Board createBoard(Member member,
-                                    List<BoardCategory> boardCategories,
+                                    Category category,
                                     List<Attach> insertAttaches,
                                     String title,
                                     String content
@@ -201,12 +207,7 @@ public class Board {
                 .build();
 
         board.setMember(member);
-
-        if (boardCategories != null) {
-            for (BoardCategory boardCategory : boardCategories) {
-                board.addBoardCategory(boardCategory);
-            }
-        }
+        board.setCategory(category);
 
         if (insertAttaches != null) {
             for (Attach attach : insertAttaches) {
@@ -239,14 +240,19 @@ public class Board {
         }
     }
 
-    /**
-     * 위와 같음
-     * @param boardCategory
-     */
-    public void addBoardCategory(BoardCategory boardCategory) {
-        boardCategories.add(boardCategory);
-        boardCategory.setBoard(this);
+    private void setCategory(Category category) {
+
+        if (this.category != null) { //기존에 참조 값이 있다면 제거한다
+            this.category.getBoards().remove(this);
+        }
+
+        this.category = category;
+
+        if (!category.getBoards().contains(this)) { //재귀호출 방지
+            category.getBoards().add(this);
+        }
     }
+
 
 
 
