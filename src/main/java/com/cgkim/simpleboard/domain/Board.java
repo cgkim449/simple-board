@@ -18,6 +18,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
@@ -33,7 +35,7 @@ import static javax.persistence.FetchType.LAZY;
 /**
  * 테이블 매핑
  * - Board 테이블
- *
+ * <p>
  * 연관관계 매핑
  * - 다대일 : Category, Member, Admin
  */
@@ -43,14 +45,15 @@ import static javax.persistence.FetchType.LAZY;
 @Entity
 public class Board {
 
-    //TODO: 카테고리, 보드 다대다로 만들기
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long boardId;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "category_id")
-    private Category category;
+    @ManyToMany
+    @JoinTable(name = "board_category", //연결테이블 지정
+            joinColumns = @JoinColumn(name = "board_id"), //연결테이블의 board_id
+            inverseJoinColumns = @JoinColumn(name = "category_id")) //연결테이블의 category_id
+    private List<Category> categories = new ArrayList<>();
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "member_id")
@@ -62,22 +65,22 @@ public class Board {
 
     /**
      * OneToMany : 단순히 객체 그래프 탐색 및 JPQL 사용이 목적
-     *
+     * <p>
      * CascadeType.ALL
      * - Attach 를 참조하는 객체가 Board 밖에 없어서 안전하다
      * - Board 와 Attach 의 생명주기가 같기 때문에 편리하다
      * - Board 를 영속화, 비영속화 할때 Attach 도 함께 영속화, 비영속화 된다
      * - 단 Attach 리스트에서 Attach 를 제거한다고 Attach 가 비영속화되지는 않는다.
      * - orphanRemoval 을 이용하면 가능해진다
-     *
+     * <p>
      * orphanRemoval = true
      * - 컬렉션에서 제거하면 비영속화된다
-     *
+     * <p>
      * new ArrayList() 로 필드에서 초기화 하는 이유
      * - 엔티티를 영속화할때 컬렉션은
      */
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<BoardCategory> boardCategories = new ArrayList<>();
+//    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private final List<BoardCategory> boardCategories = new ArrayList<>();
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Attach> attaches = new ArrayList<>();
 
@@ -140,7 +143,7 @@ public class Board {
     /**
      * 역할
      * - Board 엔티티 생성 (익명 게시물)
-     *
+     * <p>
      * 목적
      * - 엔티티 생성 로직을 한 곳에서 관리
      * - 다른 생성자는 호출 못하게 private 나 protected 로 변경
@@ -170,7 +173,7 @@ public class Board {
                 .viewCount(0)
                 .build();
 
-        board.setCategory(category);
+//        board.setCategory(category);
 
         if (insertAttaches != null) {
             for (Attach attach : insertAttaches) {
@@ -180,7 +183,6 @@ public class Board {
 
         return board;
     }
-
 
 
     /**
@@ -207,7 +209,7 @@ public class Board {
                 .build();
 
         board.setMember(member);
-        board.setCategory(category);
+//        board.setCategory(category);
 
         if (insertAttaches != null) {
             for (Attach attach : insertAttaches) {
@@ -221,7 +223,7 @@ public class Board {
     /**
      * 역할
      * - Board 에 Member 넣어주고, Member 에도 Board 넣어준다
-     *
+     * <p>
      * 목적
      * - 둘 중에 하나가 누락되는 걸 방지하기 위해 메서드로 묶음
      *
@@ -240,20 +242,18 @@ public class Board {
         }
     }
 
-    private void setCategory(Category category) {
-
-        if (this.category != null) { //기존에 참조 값이 있다면 제거한다
-            this.category.getBoards().remove(this);
-        }
-
-        this.category = category;
-
-        if (!category.getBoards().contains(this)) { //재귀호출 방지
-            category.getBoards().add(this);
-        }
-    }
-
-
+//    private void setCategory(Category category) {
+//
+//        if (this.category != null) { //기존에 참조 값이 있다면 제거한다
+//            this.category.getBoards().remove(this);
+//        }
+//
+//        this.category = category;
+//
+//        if (!category.getBoards().contains(this)) { //재귀호출 방지
+//            category.getBoards().add(this);
+//        }
+//    }
 
 
     /**

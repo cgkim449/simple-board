@@ -130,9 +130,9 @@ public class BoardRepository {
                                 .where(commentSub.board.boardId.eq(board.boardId))
                 )
                 .from(board)
-                .join(board.category, category)
+//                .join(board.category, category)
                 .where(
-                        categoryEq(boardSearchRequest.getCategoryId()),
+                        /*categoryEq(boardSearchRequest.getCategoryId()),*/
                         keywordLike(boardSearchRequest.getKeyword()),
                         fromDateAfter(boardSearchRequest.getFromDate()),
                         toDateBefore(boardSearchRequest.getToDate())
@@ -195,14 +195,14 @@ public class BoardRepository {
                 .or(board.guestNickname.like("%" + keyword + "%"));
     }
 
-    private BooleanExpression categoryEq(Long categoryId) {
-
-        if (categoryId == null || categoryId == 0) {
-            return null;
-        }
-
-        return board.category.categoryId.eq(categoryId);
-    }
+//    private BooleanExpression categoryEq(Long categoryId) {
+//
+//        if (categoryId == null || categoryId == 0) {
+//            return null;
+//        }
+//
+//        return board.category.categoryId.eq(categoryId);
+//    }
 
     /**
      * 검색 조건에 맞는 게시물 개수 리턴
@@ -214,8 +214,8 @@ public class BoardRepository {
 
         return jpaQueryFactory.select(board.count())
                 .from(board)
-                .join(board.category, category)
-                .where(categoryEq(boardSearchRequest.getCategoryId()),
+//                .join(board.category, category)
+                .where(/*categoryEq(boardSearchRequest.getCategoryId()),*/
                         keywordLike(boardSearchRequest.getKeyword()),
                         fromDateAfter(boardSearchRequest.getFromDate()),
                         toDateBefore(boardSearchRequest.getToDate())

@@ -16,6 +16,9 @@ import javax.persistence.Table;
 
 import static javax.persistence.FetchType.LAZY;
 
+/**
+ * 연결테이블 엔티티
+ */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name="board_category")

@@ -79,8 +79,8 @@ public class BoardDetailResponse {
 
         BoardDetailResponse boardDetailResponse = BoardDetailResponse.builder()
                 .boardId(board.getBoardId())
-                .categoryId(board.getCategory().getCategoryId())
-                .categoryName(board.getCategory().getName())
+//                .categoryId(board.getCategory().getCategoryId())
+//                .categoryName(board.getCategory().getName())
                 .hasAttach(board.getHasAttach())
                 .title(board.getTitle())
                 .content(board.getContent())
